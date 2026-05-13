@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const PRODUCTS = {
   "car-loan": {
-    sku: "LOAN-CAR-001",
+    sku: "LOAN-VEH-001",
     name: "Car Loan",
     tagline: "Drive away today with flexible financing",
     rate: "from 5.5% APR",
@@ -22,7 +22,7 @@ const PRODUCTS = {
     ],
   },
   "real-estate-loan": {
-    sku: "LOAN-REALESTATE-001",
+    sku: "LOAN-REAL-001",
     name: "Real Estate Loan",
     tagline: "Your home journey starts here",
     rate: "from 3.9% APR",
@@ -38,7 +38,7 @@ const PRODUCTS = {
     ],
   },
   "short-term-loan": {
-    sku: "LOAN-SHORTTERM-001",
+    sku: "LOAN-SHORT-001",
     name: "Short Term Loan",
     tagline: "Fast cash when you need it most",
     rate: "from 8.9% APR",
