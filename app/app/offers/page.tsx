@@ -1,3 +1,5 @@
+import DYContext from "@/components/DYContext";
+
 const offers = [
   {
     title: "Premium Credit Card",
@@ -22,6 +24,7 @@ const offers = [
 export default function OffersPage() {
   return (
     <div className="px-5 py-6 space-y-6">
+      <DYContext context={{ type: "OTHER", data: ["OFFERS"] }} />
       <div>
         <h1 className="text-2xl font-bold text-[#0B0D12]" style={{ letterSpacing: "-0.01em" }}>Your Offers</h1>
         <p className="text-[#6B7280] text-sm mt-1">Personalised just for you</p>

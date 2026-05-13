@@ -1,10 +1,12 @@
 import Navbar from "@/components/website/Navbar";
 import Footer from "@/components/website/Footer";
+import DYContext from "@/components/DYContext";
 import Link from "next/link";
 
 export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
+      <DYContext context={{ type: "HOMEPAGE" }} />
       <Navbar />
 
       {/* Hero banner — DY targets this section */}

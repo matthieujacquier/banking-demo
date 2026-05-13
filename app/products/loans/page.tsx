@@ -1,16 +1,18 @@
 import Navbar from "@/components/website/Navbar";
 import Footer from "@/components/website/Footer";
+import DYContext from "@/components/DYContext";
 import Link from "next/link";
 
 const loans = [
-  { name: "Personal Loan", tagline: "For life's big moments", rate: "from 4.9% APR", amount: "€1,000 – €50,000", term: "12 – 84 months" },
-  { name: "Home Improvement Loan", tagline: "Invest in your home", rate: "from 3.9% APR", amount: "€5,000 – €100,000", term: "24 – 120 months" },
-  { name: "Auto Loan", tagline: "Get on the road faster", rate: "from 5.5% APR", amount: "€3,000 – €75,000", term: "12 – 72 months" },
+  { slug: "car-loan", name: "Car Loan", tagline: "Drive away today with flexible financing", rate: "from 5.5% APR", amount: "€3,000 – €75,000", term: "12 – 72 months" },
+  { slug: "real-estate-loan", name: "Real Estate Loan", tagline: "Your home journey starts here", rate: "from 3.9% APR", amount: "€50,000 – €1,000,000", term: "5 – 30 years" },
+  { slug: "short-term-loan", name: "Short Term Loan", tagline: "Fast cash when you need it most", rate: "from 8.9% APR", amount: "€500 – €10,000", term: "1 – 24 months" },
 ];
 
 export default function LoansPage() {
   return (
     <div className="flex flex-col min-h-screen">
+      <DYContext context={{ type: "CATEGORY", data: ["Loans"] }} />
       <Navbar />
 
       <section className="bg-[#0B0D12] text-white py-20 px-6">
@@ -36,9 +38,14 @@ export default function LoansPage() {
                   </div>
                 ))}
               </div>
-              <Link href="/login" className="block text-center bg-[#0B0D12] text-white py-3 rounded-full font-bold text-sm hover:bg-[#1A1F2C] transition-colors">
-                Apply Now
-              </Link>
+              <div className="flex gap-3">
+                <Link href={`/products/loans/${loan.slug}`} className="flex-1 block text-center border border-[#D8E0ED] text-[#0B0D12] py-3 rounded-full font-bold text-sm hover:bg-[#F6F7FB] transition-colors">
+                  Learn More
+                </Link>
+                <Link href="/login" className="flex-1 block text-center bg-[#0B0D12] text-white py-3 rounded-full font-bold text-sm hover:bg-[#1A1F2C] transition-colors">
+                  Apply Now
+                </Link>
+              </div>
             </div>
           ))}
         </div>

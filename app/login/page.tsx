@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import DYContext from "@/components/DYContext";
 
 const DEMO_USERS = [
   { email: "john.doe@demo.com", password: "demo1234", name: "John Doe" },
@@ -28,6 +29,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#0B0D12] flex flex-col items-center justify-center px-6">
+      <DYContext context={{ type: "OTHER", data: ["LOGIN"] }} />
       <Link href="/" className="text-2xl font-bold text-white mb-10">
         Nexa<span className="text-[#2563FF]">Bank</span>
       </Link>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import DYContext from "@/components/DYContext";
 
 export default function DashboardPage() {
   const [userName, setUserName] = useState("there");
@@ -21,6 +22,7 @@ export default function DashboardPage() {
 
   return (
     <div className="px-5 py-6 space-y-6">
+      <DYContext context={{ type: "OTHER", data: ["DASHBOARD"] }} />
       <div>
         <p className="text-[#6B7280] text-sm">Good morning,</p>
         <h1 className="text-2xl font-bold text-[#0B0D12]" style={{ letterSpacing: "-0.01em" }}>{userName}</h1>

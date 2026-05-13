@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import DYContext from "@/components/DYContext";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function ProfilePage() {
 
   return (
     <div className="px-5 py-6 space-y-6">
+      <DYContext context={{ type: "OTHER", data: ["PROFILE"] }} />
       {/* Avatar */}
       <div className="flex items-center gap-4">
         <div className="w-16 h-16 rounded-full bg-[#0B0D12] flex items-center justify-center text-[#2563FF] text-2xl font-bold">

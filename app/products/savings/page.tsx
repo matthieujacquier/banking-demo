@@ -1,5 +1,6 @@
 import Navbar from "@/components/website/Navbar";
 import Footer from "@/components/website/Footer";
+import DYContext from "@/components/DYContext";
 import Link from "next/link";
 
 const accounts = [
@@ -11,6 +12,7 @@ const accounts = [
 export default function SavingsPage() {
   return (
     <div className="flex flex-col min-h-screen">
+      <DYContext context={{ type: "CATEGORY", data: ["Savings"] }} />
       <Navbar />
 
       <section className="bg-[#0B0D12] text-white py-20 px-6">

@@ -1,5 +1,6 @@
 import Navbar from "@/components/website/Navbar";
 import Footer from "@/components/website/Footer";
+import DYContext from "@/components/DYContext";
 import Link from "next/link";
 
 const cards = [
@@ -29,6 +30,7 @@ const cards = [
 export default function CreditCardsPage() {
   return (
     <div className="flex flex-col min-h-screen">
+      <DYContext context={{ type: "CATEGORY", data: ["Credit Cards"] }} />
       <Navbar />
 
       <section className="bg-[#0B0D12] text-white py-20 px-6">

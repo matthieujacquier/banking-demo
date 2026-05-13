@@ -1,9 +1,11 @@
 import Navbar from "@/components/website/Navbar";
 import Footer from "@/components/website/Footer";
+import DYContext from "@/components/DYContext";
 
 export default function ContactPage() {
   return (
     <div className="flex flex-col min-h-screen">
+      <DYContext context={{ type: "OTHER", data: ["CONTACT"] }} />
       <Navbar />
 
       <section className="bg-[#0A1628] text-white py-16 px-6">
