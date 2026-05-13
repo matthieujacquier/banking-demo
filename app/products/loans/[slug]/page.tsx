@@ -7,50 +7,127 @@ import Link from "next/link";
 const PRODUCTS = {
   "car-loan": {
     sku: "LOAN-VEH-001",
-    name: "Car Loan",
-    tagline: "Drive away today with flexible financing",
+    category: "Vehicle",
+    accent: "#0891B2",
+    name: "Vehicle Financing",
+    tagline: "Drive away sooner with flexible financing for new and used cars.",
     rate: "from 5.5% APR",
     amount: "€3,000 – €75,000",
     term: "12 – 72 months",
     description:
-      "Whether you're buying new or used, our Car Loan gives you the freedom to choose the vehicle you want at a rate that works for you. Fast approval, no hidden fees, and flexible repayment terms.",
+      "Whether you're buying new or used, our Vehicle Financing gives you the freedom to choose the car you want at a rate that works for you. Get a same-day approval decision, with no hidden fees and fixed monthly repayments across terms of up to 72 months.",
     features: [
       "Same-day approval decision",
-      "Finance new and used vehicles",
+      "Finance new and used vehicles up to €75,000",
       "No early repayment penalty",
-      "Fixed monthly payments",
+      "Fixed monthly payments for the full term",
+      "Dedicated loan advisor on request",
+    ],
+    eligibility: [
+      "Aged 18 or over and EU resident",
+      "Minimum net monthly income of €1,500",
+      "Valid driving licence",
+      "No recent adverse credit history",
     ],
   },
   "real-estate-loan": {
     sku: "LOAN-REAL-001",
+    category: "Real Estate",
+    accent: "#2563FF",
     name: "Real Estate Loan",
-    tagline: "Your home journey starts here",
+    tagline: "Your home journey starts here — competitive rates, long-term flexibility.",
     rate: "from 3.9% APR",
     amount: "€50,000 – €1,000,000",
-    term: "5 – 30 years",
+    term: "Up to 30 years",
     description:
-      "From first-time buyers to seasoned investors, our Real Estate Loan offers competitive rates and long-term flexibility to help you secure the property you've been dreaming of.",
+      "From first-time buyers to seasoned investors, our Real Estate Loan offers competitive rates and the flexibility to match your project. Choose between fixed and variable rates, borrow up to 90% of the property value, and benefit from a free valuation included with every application.",
     features: [
-      "Dedicated mortgage advisor",
       "Fixed and variable rate options",
       "Up to 90% loan-to-value",
-      "Free property valuation",
+      "Free property valuation included",
+      "Dedicated mortgage advisor throughout the process",
+      "No early repayment fee on variable rate",
+    ],
+    eligibility: [
+      "Aged 18 or over and EU resident",
+      "Minimum net monthly income of €2,500",
+      "Property located within the EU",
+      "Proof of deposit (minimum 10%)",
     ],
   },
   "short-term-loan": {
     sku: "LOAN-SHORT-001",
+    category: "Short Term",
+    accent: "#EA580C",
     name: "Short Term Loan",
-    tagline: "Fast cash when you need it most",
+    tagline: "Fast funds when you need them — in your account within 24 hours.",
     rate: "from 8.9% APR",
     amount: "€500 – €10,000",
-    term: "1 – 24 months",
+    term: "Up to 24 months",
     description:
-      "Need funds quickly for an unexpected expense? Our Short Term Loan puts money in your account within 24 hours with minimal paperwork and a straightforward repayment schedule.",
+      "Life doesn't always wait. Our Short Term Loan puts money in your account within 24 hours of approval, with minimal paperwork and no collateral required. A straightforward repayment schedule means no surprises — just the funds you need, when you need them.",
     features: [
-      "Funds in 24 hours",
-      "No collateral required",
-      "Minimal documentation",
-      "Flexible repayment schedule",
+      "Funds credited within 24 hours of approval",
+      "No collateral or guarantor required",
+      "Minimal documentation — apply entirely online",
+      "Flexible repayment schedule from 1 to 24 months",
+      "Early repayment at no additional cost",
+    ],
+    eligibility: [
+      "Aged 18 or over and EU resident",
+      "Active NexaBank current account",
+      "Minimum net monthly income of €1,000",
+      "No active loan defaults",
+    ],
+  },
+  "student-loan": {
+    sku: "LOAN-STU-001",
+    category: "Education",
+    accent: "#16A34A",
+    name: "Student Loan",
+    tagline: "Invest in your education — our lowest rates, built for students.",
+    rate: "from 2.9% APR",
+    amount: "€1,000 – €25,000",
+    term: "Up to 10 years",
+    description:
+      "Our Student Loan is designed to remove financial barriers to education. With our lowest available rate and the option to defer repayments until after you graduate, you can focus on your studies without the pressure of immediate repayments. Covers tuition fees, accommodation, and living expenses.",
+    features: [
+      "Defer repayments until 6 months after graduation",
+      "Our lowest rate — from 2.9% APR",
+      "Covers tuition, accommodation and living costs",
+      "No early repayment penalty",
+      "Flexible repayment terms up to 10 years",
+    ],
+    eligibility: [
+      "Aged 17 or over and EU resident",
+      "Enrolled in an accredited university or institution",
+      "Co-signatory required for applicants under 18",
+      "Annual enrolment confirmation required",
+    ],
+  },
+  "renovation-loan": {
+    sku: "LOAN-RENO-001",
+    category: "Home Improvement",
+    accent: "#7C3AED",
+    name: "House Renovation Loan",
+    tagline: "Transform your home — from kitchen to full refurbishment.",
+    rate: "from 4.5% APR",
+    amount: "€5,000 – €100,000",
+    term: "Up to 10 years",
+    description:
+      "Whether you're planning a kitchen remodel, a new bathroom, or a full home refurbishment, our House Renovation Loan gives you the funds to bring your project to life. Choose your own contractor, receive a decision within 48 hours, and benefit from stage-release funding on larger projects.",
+    features: [
+      "No restriction on contractor choice",
+      "Stage-release funding available for larger projects",
+      "Decision within 48 hours",
+      "Fixed monthly payments throughout the term",
+      "No early repayment penalty",
+    ],
+    eligibility: [
+      "Aged 18 or over and EU resident",
+      "Property owner within the EU",
+      "Minimum net monthly income of €1,800",
+      "Renovation project located within the EU",
     ],
   },
 };
@@ -83,9 +160,12 @@ export default async function LoanProductPage({
             <span className="text-[#6B7280]">›</span>
             <span className="text-white">{product.name}</span>
           </div>
-          <p className="text-[#2563FF] text-xs font-bold uppercase tracking-widest mb-4">
-            SKU: {product.sku}
-          </p>
+          <span
+            className="inline-block text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-full mb-5"
+            style={{ color: product.accent, backgroundColor: `${product.accent}25` }}
+          >
+            {product.category}
+          </span>
           <h1 className="text-5xl font-bold mb-4" style={{ letterSpacing: "-0.025em" }}>
             {product.name}
           </h1>
@@ -98,7 +178,7 @@ export default async function LoanProductPage({
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-10">
 
           {/* Main info */}
-          <div className="md:col-span-2 space-y-8">
+          <div className="md:col-span-2 space-y-6">
             <div className="bg-white rounded-3xl border border-[#D8E0ED] p-8" style={{ boxShadow: "0 16px 34px rgba(11,13,18,0.07)" }}>
               <h2 className="text-xl font-bold text-[#0B0D12] mb-4" style={{ letterSpacing: "-0.01em" }}>
                 About this loan
@@ -113,8 +193,22 @@ export default async function LoanProductPage({
               <ul className="space-y-3">
                 {product.features.map((f) => (
                   <li key={f} className="flex gap-3 items-start">
-                    <span className="text-[#119E5A] font-bold mt-0.5">✓</span>
-                    <span className="text-[#1F2937]">{f}</span>
+                    <span className="font-bold mt-0.5" style={{ color: product.accent }}>✓</span>
+                    <span className="text-[#1F2937] text-sm">{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-[#D8E0ED] p-8" style={{ boxShadow: "0 16px 34px rgba(11,13,18,0.07)" }}>
+              <h2 className="text-xl font-bold text-[#0B0D12] mb-5" style={{ letterSpacing: "-0.01em" }}>
+                Eligibility
+              </h2>
+              <ul className="space-y-3">
+                {product.eligibility.map((e) => (
+                  <li key={e} className="flex gap-3 items-start">
+                    <span className="text-[#6B7280] mt-0.5">—</span>
+                    <span className="text-[#1F2937] text-sm">{e}</span>
                   </li>
                 ))}
               </ul>
@@ -122,9 +216,10 @@ export default async function LoanProductPage({
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div>
             <div className="bg-white rounded-3xl border border-[#D8E0ED] p-7 sticky top-20" style={{ boxShadow: "0 16px 34px rgba(11,13,18,0.07)" }}>
-              <div className="space-y-4 mb-7">
+              <p className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-4">Loan summary</p>
+              <div className="space-y-3 mb-7">
                 {[
                   ["Rate", product.rate],
                   ["Amount", product.amount],
@@ -148,6 +243,9 @@ export default async function LoanProductPage({
               >
                 Talk to an Advisor
               </Link>
+              <p className="text-[#6B7280] text-xs text-center mt-5 leading-relaxed">
+                Representative APR shown. Your rate may vary based on your credit profile and loan amount.
+              </p>
             </div>
           </div>
 
