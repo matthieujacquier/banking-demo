@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexa — Cards Background</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════
+       PAGE-LEVEL DESIGN TOKENS
+       These control the HTML layer (vignette, label).
+       The 3D scene is controlled by CFG in the script.
+       ═══════════════════════════════════════════ */
+    :root {
+      --page-bg:          #0B0D12;   /* must match CFG.sceneBg hex */
+      --vignette-opacity: 0.60;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--page-bg); }
+
+    #bg {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      display: block;
+    }
+
+    /* Radial vignette — darkens edges so text overlaid on this section reads clearly */
+    #vignette {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 1;
+      background: radial-gradient(
+        ellipse 85% 75% at 50% 50%,
+        transparent 25%,
+        rgba(11, 13, 18, var(--vignette-opacity)) 100%
+      );
+    }
+
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div id="vignette"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════════════════════════
+   CFG — Single source of truth for all 3D design decisions.
+   Tweak anything here; nothing else needs to change.
+   ════════════════════════════════════════════════════════════════════ */
+const CFG = {
+
+  /* ── Scene ─────────────────────────────────────────────────── */
+  sceneBg:  0x0B0D12,   /* hex int: must match --page-bg CSS var   */
+  fogNear:  10,
+  fogFar:   26,
+
+  /* ── Camera ────────────────────────────────────────────────── */
+  fov:      52,
+  cameraZ:  9.5,
+  parallax: 0.06,       /* mouse parallax strength (0 = disabled)  */
+
+  /* ── Lighting ──────────────────────────────────────────────── */
+  ambientIntensity: 0.32,
+  lights: [
+    { hex: 0xFFFFFF, intensity: 2.4, pos: [ 5.0,  4.0,  6.5] }, /* white key    */
+    { hex: 0xBAE6FD, intensity: 1.0, pos: [-4.0, -2.0,  4.0] }, /* sky fill     */
+    { hex: 0xFFFFFF, intensity: 0.7, pos: [ 0.0,  6.5,  2.0] }, /* top          */
+  ],
+
+  /* ── Card geometry (world units) ───────────────────────────── */
+  cW: 3.20,   /* width                                             */
+  cH: 2.02,   /* height                                            */
+  cD: 0.042,  /* depth / thickness                                 */
+
+  /* ── Animation ─────────────────────────────────────────────── */
+  speed:    0.00016,  /* global time multiplier                     */
+  floatAmp: 0.050,    /* vertical float amplitude                   */
+  rotAmpX:  0.028,    /* max extra rotation on X                    */
+  rotAmpY:  0.048,    /* max extra rotation on Y                    */
+
+  /* ── 4 Card designs — NexaBank tiers ──────────────────────── */
+  cards: [
+    {
+      label:  'NexaPrestige',
+      number: '••••  ••••  ••••  4291',
+      holder: 'SOPHIE LAMBERT',
+      expiry: '12 / 29',
+      g0:    '#1A0A02',  /* gradient start — near-black brown       */
+      g1:    '#78350F',  /* gradient end — deep amber (amber-800)   */
+      accent: '#B45309', /* design-system Prestige accent           */
+      chip:   '#FCD34D', /* EMV chip gold                           */
+      text:   '#FEF3C7', /* primary text                            */
+      sub:    'rgba(252,211,77,0.55)',
+    },
+    {
+      label:  'NexaNomad',
+      number: '••••  ••••  ••••  7738',
+      holder: 'THOMAS MARTIN',
+      expiry: '08 / 27',
+      g0:    '#042F3A',  /* near-black teal                          */
+      g1:    '#155E75',  /* deep cyan (cyan-800)                     */
+      accent: '#0891B2', /* design-system Nomad/Travel accent        */
+      chip:   '#67E8F9',
+      text:   '#E0F2FE',
+      sub:    'rgba(103,232,249,0.55)',
+    },
+    {
+      label:  'NexaEssential',
+      number: '••••  ••••  ••••  5502',
+      holder: 'ELENA ROSSI',
+      expiry: '03 / 28',
+      g0:    '#0A0F2C',  /* near-black navy                          */
+      g1:    '#1E3A8A',  /* deep blue (blue-900)                     */
+      accent: '#2563FF', /* design-system Essential/Real Estate      */
+      chip:   '#93C5FD',
+      text:   '#DBEAFE',
+      sub:    'rgba(147,197,253,0.55)',
+    },
+    {
+      label:  'NexaStart',
+      number: '••••  ••••  ••••  9147',
+      holder: 'ALEX DUBOIS',
+      expiry: '06 / 30',
+      g0:    '#052E16',  /* near-black forest (green-950)            */
+      g1:    '#166534',  /* deep green (green-800)                   */
+      accent: '#16A34A', /* design-system Start/Student accent       */
+      chip:   '#86EFAC',
+      text:   '#D1FAE5',
+      sub:    'rgba(134,239,172,0.55)',
+    },
+  ],
+
+  /* ── 3-D layout per card ───────────────────────────────────── */
+  /* pos:[x,y,z]  rx/ry/rz: base Euler angles  phase: float offset */
+  layout: [
+    { pos: [-2.95,  0.50,  0.40], rx:  0.08, ry:  0.30, rz:  0.02, phase: 0.0 },
+    { pos: [-0.35,  1.05, -1.30], rx:  0.04, ry: -0.13, rz: -0.02, phase: 1.6 },
+    { pos: [ 2.50,  0.30,  0.20], rx:  0.09, ry: -0.28, rz:  0.03, phase: 3.1 },
+    { pos: [ 0.50, -1.40, -0.80], rx: -0.05, ry:  0.20, rz:  0.02, phase: 4.7 },
+  ],
+
+  /* ── Background particles ──────────────────────────────────── */
+  ptCount:   220,
+  ptSpread:  24,
+  ptSize:    0.038,
+  ptColor:   0x0891B2,
+  ptOpacity: 0.28,
+};
+
+
+/* ════════════════════════════════════════════════════════════════════
+   TEXTURE HELPERS
+   ════════════════════════════════════════════════════════════════════ */
+const TW = 1024, TH = 640; /* card texture resolution in px */
+
+function hexToRGB(hex) {
+  const h = hex.replace('#', '');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function toRGBA(hex, a) {
+  const [r,g,b] = hexToRGB(hex);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+
+/* ── Rounded-rect path (manual; avoids ctx.roundRect which is unsupported on older browsers) */
+function roundRectPath(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+/* ── EMV chip ───────────────────────────────────────────────────── */
+function drawChip(ctx, x, y, color) {
+  const W = 110, H = 84;
+  const [r,g,b] = hexToRGB(color);
+  const clamped = (v, d) => Math.max(0, Math.min(255, v + d));
+  const grad = ctx.createLinearGradient(x, y, x+W, y+H);
+  grad.addColorStop(0, `rgb(${clamped(r,55)},${clamped(g,45)},${clamped(b,25)})`);
+  grad.addColorStop(1, `rgb(${clamped(r,-35)},${clamped(g,-35)},${clamped(b,-20)})`);
+  roundRectPath(ctx, x, y, W, H, 10);
+  ctx.fillStyle = grad; ctx.fill();
+  ctx.strokeStyle = `rgba(${clamped(r,-55)},${clamped(g,-55)},${clamped(b,-40)},0.75)`;
+  ctx.lineWidth = 2;
+  const lines = [[x+W/2,y, x+W/2,y+H],[x,y+H*.38, x+W,y+H*.38],[x,y+H*.65, x+W,y+H*.65]];
+  lines.forEach(([x1,y1,x2,y2]) => {
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  });
+}
+
+/* ── Contactless / NFC arcs ─────────────────────────────────────── */
+function drawNFC(ctx, x, y, color, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3; ctx.lineCap = 'round';
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.arc(x, y, 13 + i*17, -Math.PI*.68, Math.PI*.68);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ── Mastercard logo ────────────────────────────────────────────── */
+/* Uses an offscreen canvas with 'screen' blend so the overlap
+   naturally renders as the correct Mastercard orange (#FF9E33).   */
+function drawMastercard(ctx, cx, cy, r) {
+  const pad = 10;
+  const bw = Math.ceil(r*3 + pad*2);
+  const bh = Math.ceil(r*2 + pad*2);
+  const oc  = document.createElement('canvas');
+  oc.width  = bw; oc.height = bh;
+  const ov  = oc.getContext('2d');
+  const ox  = bw/2, oy = bh/2;
+
+  /* Left — red circle */
+  ov.beginPath(); ov.arc(ox - r*.5, oy, r, 0, Math.PI*2);
+  ov.fillStyle = '#EB001B'; ov.fill();
+
+  /* Right — yellow circle; 'screen' over red → orange in overlap */
+  ov.globalCompositeOperation = 'screen';
+  ov.beginPath(); ov.arc(ox + r*.5, oy, r, 0, Math.PI*2);
+  ov.fillStyle = '#F79E1B'; ov.fill();
+
+  ctx.drawImage(oc, cx - ox, cy - oy);
+
+  /* "mastercard" wordmark beneath circles */
+  ctx.save();
+  ctx.font = 'bold 20px Outfit, "Helvetica Neue", Arial, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.textAlign = 'center';
+  ctx.fillText('mastercard', cx, cy + r + 26);
+  ctx.restore();
+}
+
+
+/* ── Card FRONT texture ─────────────────────────────────────────── */
+function buildFront(card) {
+  const cv = document.createElement('canvas');
+  cv.width = TW; cv.height = TH;
+  const c = cv.getContext('2d');
+
+  /* Base gradient */
+  const bg = c.createLinearGradient(0, 0, TW, TH);
+  bg.addColorStop(0, card.g0); bg.addColorStop(1, card.g1);
+  c.fillStyle = bg; c.fillRect(0, 0, TW, TH);
+
+  /* Accent glow blob — upper right */
+  const gl = c.createRadialGradient(TW*.76, TH*.22, 0, TW*.76, TH*.22, TW*.56);
+  gl.addColorStop(0, toRGBA(card.accent, 0.22));
+  gl.addColorStop(1, 'rgba(0,0,0,0)');
+  c.fillStyle = gl; c.fillRect(0, 0, TW, TH);
+
+  /* Sheen — diagonal top-left highlight */
+  const sh = c.createLinearGradient(0, 0, TW*.52, TH*.44);
+  sh.addColorStop(0, 'rgba(255,255,255,0.08)');
+  sh.addColorStop(1, 'rgba(255,255,255,0)');
+  c.fillStyle = sh; c.fillRect(0, 0, TW, TH);
+
+  /* Subtle bottom-edge reflection */
+  const re = c.createLinearGradient(0, TH*.8, 0, TH);
+  re.addColorStop(0, 'rgba(255,255,255,0)');
+  re.addColorStop(1, toRGBA(card.accent, 0.06));
+  c.fillStyle = re; c.fillRect(0, 0, TW, TH);
+
+  /* ── NEXA wordmark */
+  c.font = '800 88px Outfit, "Helvetica Neue", Arial, sans-serif';
+  c.fillStyle = card.text;
+  c.fillText('NEXA', 56, 108);
+
+  /* ── Card tier label — top right */
+  c.font = '300 34px Outfit, "Helvetica Neue", Arial, sans-serif';
+  c.fillStyle = toRGBA(card.text, 0.70);
+  c.textAlign = 'right';
+  c.fillText(card.label.toUpperCase(), TW - 56, 108);
+  c.textAlign = 'left';
+
+  /* ── Thin separator line */
+  c.strokeStyle = toRGBA(card.text, 0.18);
+  c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(56, 140); c.lineTo(TW - 56, 140); c.stroke();
+
+  /* ── EMV chip */
+  drawChip(c, 56, 240, card.chip);
+
+  /* ── NFC arcs */
+  drawNFC(c, 210, 282, card.text, 0.75);
+
+  /* ── Card number */
+  c.font = '500 54px Outfit, "Courier New", monospace';
+  c.fillStyle = card.text;
+  c.fillText(card.number, 56, 420);
+
+  /* ── Holder name */
+  c.font = '600 32px Outfit, "Helvetica Neue", Arial, sans-serif';
+  c.fillStyle = card.text;
+  c.fillText(card.holder, 56, 530);
+
+  /* ── "VALID THRU" label + expiry */
+  c.font = '300 20px Outfit, "Helvetica Neue", Arial, sans-serif';
+  c.fillStyle = toRGBA(card.text, 0.65);
+  c.fillText('VALID THRU', 56, 580);
+  c.font = '500 28px Outfit, "Helvetica Neue", Arial, sans-serif';
+  c.fillStyle = card.text;
+  c.fillText(card.expiry, 220, 580);
+
+  /* ── Mastercard logo — bottom right */
+  drawMastercard(c, TW - 130, 530, 50);
+
+  return new THREE.CanvasTexture(cv);
+}
+
+
+/* ── Card BACK texture ──────────────────────────────────────────── */
+function buildBack(card) {
+  const cv = document.createElement('canvas');
+  cv.width = TW; cv.height = TH;
+  const c = cv.getContext('2d');
+
+  const bg = c.createLinearGradient(TW, TH, 0, 0);
+  bg.addColorStop(0, card.g0); bg.addColorStop(1, card.g1);
+  c.fillStyle = bg; c.fillRect(0, 0, TW, TH);
+
+  /* Magnetic stripe */
+  c.fillStyle = 'rgba(0,0,0,0.88)';
+  c.fillRect(0, 108, TW, 118);
+
+  /* Signature strip */
+  c.fillStyle = 'rgba(255,255,255,0.07)';
+  c.fillRect(52, 312, TW * .58, 78);
+  c.font = '300 14px Outfit, sans-serif';
+  c.fillStyle = 'rgba(0,0,0,0.45)';
+  c.fillText('AUTHORIZED SIGNATURE', 64, 358);
+
+  /* Bank details — faint footer */
+  c.font = '700 21px Outfit, sans-serif';
+  c.fillStyle = toRGBA(card.text, 0.15);
+  c.textAlign = 'center';
+  c.fillText('NEXA BANK — nexabank.com', TW/2, TH - 44);
+  c.textAlign = 'left';
+
+  return new THREE.CanvasTexture(cv);
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   ROUNDED CARD GEOMETRY
+   ExtrudeGeometry from a rounded-rect Shape gives the authentic
+   banking-card profile. Custom UV generator maps the cap faces
+   to 0–1 so the canvas textures land correctly.
+   ════════════════════════════════════════════════════════════════════ */
+function buildRoundedCardGeo() {
+  const { cW, cH, cD } = CFG;
+  const r  = 0.12;   /* corner radius (~3.75 % of width — ISO 7810 spec) */
+  const hw = cW / 2, hh = cH / 2;
+
+  const shape = new THREE.Shape();
+  shape.moveTo(-hw + r, -hh);
+  shape.lineTo( hw - r, -hh);
+  shape.absarc( hw - r, -hh + r, r, -Math.PI / 2,     0,               false);
+  shape.lineTo( hw,  hh - r);
+  shape.absarc( hw - r,  hh - r, r,  0,              Math.PI / 2,      false);
+  shape.lineTo(-hw + r,  hh);
+  shape.absarc(-hw + r,  hh - r, r,  Math.PI / 2,    Math.PI,          false);
+  shape.lineTo(-hw, -hh + r);
+  shape.absarc(-hw + r, -hh + r, r,  Math.PI,        Math.PI * 3 / 2,  false);
+
+  /* No UV generator needed — front/back faces are separate PlaneGeometry meshes */
+  const geo = new THREE.ExtrudeGeometry(shape, {
+    depth:          cD,
+    bevelEnabled:   true,
+    bevelSize:      0.016,
+    bevelThickness: 0.012,
+    bevelSegments:  4,
+    curveSegments:  12,
+  });
+
+  geo.translate(0, 0, -cD / 2);  /* centre on Z */
+  return geo;
+}
+
+/* ── Rounded face geometry ─────────────────────────────────────────
+   Matches the body's outline so face corners align with the card
+   silhouette. UVs are normalized to 0–1 so the texture maps to the
+   bounding box (ShapeGeometry's default UVs use world x/y). */
+function buildRoundedFaceGeo() {
+  const { cW, cH } = CFG;
+  const r  = 0.12;
+  const hw = cW / 2, hh = cH / 2;
+
+  const shape = new THREE.Shape();
+  shape.moveTo(-hw + r, -hh);
+  shape.lineTo( hw - r, -hh);
+  shape.absarc( hw - r, -hh + r, r, -Math.PI / 2,     0,               false);
+  shape.lineTo( hw,  hh - r);
+  shape.absarc( hw - r,  hh - r, r,  0,              Math.PI / 2,      false);
+  shape.lineTo(-hw + r,  hh);
+  shape.absarc(-hw + r,  hh - r, r,  Math.PI / 2,    Math.PI,          false);
+  shape.lineTo(-hw, -hh + r);
+  shape.absarc(-hw + r, -hh + r, r,  Math.PI,        Math.PI * 3 / 2,  false);
+
+  const geo = new THREE.ShapeGeometry(shape, 12);
+  const pos = geo.attributes.position;
+  const uvs = geo.attributes.uv.array;
+  for (let i = 0; i < pos.count; i++) {
+    uvs[i*2]     = (pos.getX(i) + hw) / cW;
+    uvs[i*2 + 1] = (pos.getY(i) + hh) / cH;
+  }
+  geo.attributes.uv.needsUpdate = true;
+  return geo;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   THREE.JS SCENE
+   ════════════════════════════════════════════════════════════════════ */
+const renderer = new THREE.WebGLRenderer({
+  canvas: document.getElementById('bg'),
+  antialias: true,
+});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping    = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.95;
+
+const scene  = new THREE.Scene();
+scene.background = new THREE.Color(CFG.sceneBg);
+scene.fog = new THREE.Fog(CFG.sceneBg, CFG.fogNear, CFG.fogFar);
+
+const camera = new THREE.PerspectiveCamera(CFG.fov, innerWidth/innerHeight, 0.1, 60);
+camera.position.z = CFG.cameraZ;
+
+/* Lights */
+scene.add(new THREE.AmbientLight(0xffffff, CFG.ambientIntensity));
+CFG.lights.forEach(({ hex, intensity, pos }) => {
+  const l = new THREE.PointLight(hex, intensity, 30);
+  l.position.set(...pos);
+  scene.add(l);
+});
+
+/* Background particle field */
+{
+  const pos = new Float32Array(CFG.ptCount * 3);
+  for (let i = 0; i < pos.length; i++) pos[i] = (Math.random() - .5) * CFG.ptSpread;
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  scene.add(new THREE.Points(geo, new THREE.PointsMaterial({
+    color: CFG.ptColor,
+    size: CFG.ptSize,
+    transparent: true,
+    opacity: CFG.ptOpacity,
+    sizeAttenuation: true,
+  })));
+}
+
+/* Cards — built after Outfit font is loaded so canvas text is crisp */
+const meshes = [];
+let introT = 0;
+let lastMs = performance.now();
+
+function buildScene() {
+  introT = 0;                      /* restart intro whenever cards are built */
+  lastMs = performance.now();
+
+  const bodyGeo = buildRoundedCardGeo();                         /* shared */
+  const faceGeo = buildRoundedFaceGeo();                         /* shared */
+  /* ExtrudeGeometry bevels extend OUTWARD past `depth` on Z, so the body
+     actually spans ±(cD/2 + bevelThickness). Face planes must sit beyond
+     that envelope or they're hidden inside the body. */
+  const BEVEL_T = 0.012;   /* keep in sync with bevelThickness above */
+  const FACE_Z  = CFG.cD / 2 + BEVEL_T + 0.001;
+
+  CFG.cards.forEach((card, i) => {
+    const ftex = buildFront(card);
+    const btex = buildBack(card);
+
+    const [cr,cg,cb] = hexToRGB(card.g1);
+    const sideColor  = new THREE.Color(cr/255 * 0.55, cg/255 * 0.55, cb/255 * 0.55);
+
+    const group = new THREE.Group();
+
+    /* Rounded card body — sides + bevel edges, single dark material */
+    group.add(new THREE.Mesh(bodyGeo,
+      new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.28, metalness: 0.85 })
+    ));
+
+    /* Front face — plastic, not metal. metalness=0 so the texture renders as diffuse albedo.
+       No emissive: we want lighting to actually shape the colour, not get washed out. */
+    const front = new THREE.Mesh(faceGeo,
+      new THREE.MeshStandardMaterial({
+        map:        ftex,
+        roughness:  0.55,
+        metalness:  0.0,
+      })
+    );
+    front.position.z = FACE_Z;
+    group.add(front);
+
+    /* Back face */
+    const back = new THREE.Mesh(faceGeo,
+      new THREE.MeshStandardMaterial({
+        map:       btex,
+        roughness: 0.65,
+        metalness: 0.0,
+      })
+    );
+    back.position.z = -FACE_Z;
+    back.rotation.y  = Math.PI;
+    group.add(back);
+
+    const l = CFG.layout[i];
+    group.position.set(...l.pos);
+    group.rotation.set(l.rx, l.ry, l.rz);
+    group._b = { px: l.pos[0], py: l.pos[1], pz: l.pos[2], rx: l.rx, ry: l.ry, phase: l.phase };
+
+    scene.add(group);
+    meshes.push(group);
+  });
+}
+
+/* Explicitly request each Outfit weight we use. @font-face is lazy —
+   without this, document.fonts.ready resolves before Outfit is fetched
+   and canvas text silently renders in a fallback font (or worse, zero-width). */
+Promise.all([
+  document.fonts.load('300 34px Outfit'),
+  document.fonts.load('400 24px Outfit'),
+  document.fonts.load('500 54px Outfit'),
+  document.fonts.load('600 32px Outfit'),
+  document.fonts.load('700 21px Outfit'),
+  document.fonts.load('800 88px Outfit'),
+]).then(buildScene).catch(buildScene);  /* build anyway on font failure */
+
+
+/* ── Mouse parallax ─────────────────────────────────────────────── */
+let mx = 0, my = 0;
+window.addEventListener('mousemove', e => {
+  mx = (e.clientX / innerWidth  - .5) * 2;
+  my = (e.clientY / innerHeight - .5) * 2;
+});
+
+/* ── Resize ─────────────────────────────────────────────────────── */
+window.addEventListener('resize', () => {
+  renderer.setSize(innerWidth, innerHeight);
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+});
+
+/* ── Render loop ─────────────────────────────────────────────────
+   Time-based tick so speed is frame-rate independent.
+   Phase 1 (0 → INTRO_MS): cards converge from spread positions.
+   Phase 2 (after intro): gentle perpetual float.
+   Mouse: very subtle camera parallax only.
+   ──────────────────────────────────────────────────────────────── */
+const INTRO_MS  = 1800;    /* ms — convergence duration                    */
+const FLOAT_SPD = 0.00052; /* rad/ms — ~12 s y-float cycle                 */
+const SPREAD    = 2.4;     /* intro: cards start this multiple of pos from centre */
+let tick = 0;
+
+(function loop() {
+  requestAnimationFrame(loop);
+
+  const now = performance.now();
+  const dt  = Math.min(now - lastMs, 50);  /* cap at 50 ms on tab-focus   */
+  lastMs = now;
+
+  introT     = Math.min(introT + dt, INTRO_MS);
+  const t    = introT / INTRO_MS;
+  const ease = 1 - Math.pow(1 - t, 3);    /* cubic ease-out               */
+
+  tick += FLOAT_SPD * dt;
+
+  meshes.forEach(m => {
+    const { px, py, pz, rx, ry, phase } = m._b;
+
+    /* Start positions: spread outward and slightly behind the scene */
+    const sx = px * SPREAD;
+    const sy = py * SPREAD - 0.8;
+    const sz = pz - 2.5;
+
+    /* Gentle perpetual float — ramped in by ease so it only kicks in after intro */
+    const fx = Math.sin(tick * 0.61 + phase) * 0.038;
+    const fy = Math.sin(tick        + phase) * CFG.floatAmp;
+    const wx = Math.sin(tick * 0.79 + phase + 1.0) * CFG.rotAmpX;
+    const wy = Math.sin(tick * 0.57 + phase)        * CFG.rotAmpY;
+
+    m.position.x = sx + (px - sx + fx) * ease;
+    m.position.y = sy + (py - sy + fy) * ease;
+    m.position.z = sz + (pz - sz)      * ease;
+    m.rotation.x = rx + wx * ease;
+    m.rotation.y = ry + wy * ease;
+  });
+
+  /* Subtle mouse parallax — camera only, very smooth */
+  camera.position.x += (mx * CFG.parallax       - camera.position.x) * 0.025;
+  camera.position.y += (-my * CFG.parallax * 0.5 - camera.position.y) * 0.025;
+  camera.lookAt(0, 0, 0);
+
+  renderer.render(scene, camera);
+})();
+</script>
+</body>
+</html>
