@@ -2,6 +2,7 @@ import Navbar from "@/components/website/Navbar";
 import Footer from "@/components/website/Footer";
 import DYContext from "@/components/DYContext";
 import Link from "next/link";
+import Image from "next/image";
 
 // ─── Hero sections ────────────────────────────────────────────────────────────
 // Each section fills the viewport (minus the 64px sticky navbar).
@@ -240,7 +241,232 @@ export default function HomePage() {
           );
         }
 
-        /* ── Sections 1–7 — standard single-column hero with gradient bg */
+        /* ── Section 2 — Savings: image crossfade bg + new copy + phone-card visual */
+        if (index === 2) {
+          return (
+            <section
+              key={section.id}
+              id={section.id}
+              className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden bg-[#0B0D12]"
+            >
+              {/* Crossfade carousel — two full-bleed images alternating every ~7s */}
+              <div className="absolute inset-0">
+                <div className="savings-slide absolute inset-0">
+                  <Image
+                    src="/savings/family.png"
+                    alt="A family unpacking after moving into a new home"
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="savings-slide savings-slide-2 absolute inset-0">
+                  <Image
+                    src="/savings/adventure.jpg"
+                    alt="A hiker pausing on a mountain trail at dusk"
+                    fill
+                    sizes="100vw"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* Left-to-right dark fade — protects the text column */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(to right, rgba(11,13,18,0.92) 0%, rgba(11,13,18,0.78) 28%, rgba(11,13,18,0.45) 52%, rgba(11,13,18,0.15) 75%, rgba(11,13,18,0.55) 100%)",
+                }}
+              />
+
+              <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 w-full grid md:grid-cols-[1fr_auto] gap-10 lg:gap-16 items-center">
+                {/* Text column */}
+                <div className="max-w-xl">
+                  <p
+                    className="text-xs font-bold uppercase tracking-widest mb-5"
+                    style={{ color: section.accent }}
+                  >
+                    {section.label}
+                  </p>
+                  <h2
+                    className="text-5xl md:text-6xl lg:text-[4rem] font-bold text-white mb-6 leading-[1.04]"
+                    style={{ letterSpacing: "-0.03em" }}
+                  >
+                    Life, meet savings.
+                  </h2>
+                  <p className="text-white/90 text-lg md:text-xl mb-5 leading-relaxed max-w-lg">
+                    Grow your money with{" "}
+                    <span className="font-semibold">4% AER (variable)</span> interest on
+                    Instant Access Savings, paid every day.<sup>1</sup>
+                  </p>
+                  <p className="text-white/55 text-xs mb-10 leading-relaxed max-w-lg">
+                    The rate shown above is for our Ultra plan. Different rates apply per
+                    plan. The Annual Equivalent Rate (AER) shows the interest you can earn
+                    over 1 year. AER is compounded, so you&rsquo;ll earn interest on
+                    interest already earned. Interest is liable to applicable taxes. Paid
+                    plan fees and T&amp;Cs apply.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href={section.href}
+                      className="inline-flex items-center gap-2 bg-white text-[#0B0D12] px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#F6F7FB] transition-colors cursor-pointer"
+                    >
+                      Explore savings
+                    </Link>
+                    <Link
+                      href="/contact"
+                      className="border border-white/30 text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-white/10 transition-colors cursor-pointer"
+                    >
+                      Talk to an Advisor
+                    </Link>
+                  </div>
+                </div>
+
+                {/* App savings-goal card — recreated UI, transparent so the carousel shows through */}
+                <div
+                  className="hidden md:flex flex-col justify-between w-[320px] lg:w-[360px] aspect-[5/6] rounded-3xl border border-white/40 px-7 py-8 backdrop-blur-[2px]"
+                  role="img"
+                  aria-label="NexaBank app: a New adventure savings goal of £1,326"
+                >
+                  {/* Top — savings goal */}
+                  <div className="flex-1 flex flex-col items-center justify-center text-center text-white">
+                    <p className="text-base font-medium mb-2 drop-shadow-md">New adventure</p>
+                    <p
+                      className="text-5xl lg:text-[3.5rem] font-bold mb-5 drop-shadow-md"
+                      style={{ letterSpacing: "-0.03em" }}
+                    >
+                      £1,326
+                    </p>
+                    <button
+                      type="button"
+                      className="bg-white text-[#0B0D12] text-sm font-semibold px-5 py-2 rounded-full hover:bg-white/90 transition-colors cursor-pointer"
+                    >
+                      Accounts
+                    </button>
+                  </div>
+
+                  {/* Bottom — quick-action row */}
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      aria-label="Add money"
+                      className="w-11 h-11 rounded-full bg-white text-[#0B0D12] flex items-center justify-center hover:bg-white/90 transition-colors cursor-pointer"
+                    >
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Transfer"
+                      className="w-11 h-11 rounded-full bg-black/40 text-white flex items-center justify-center backdrop-blur-sm hover:bg-black/55 transition-colors cursor-pointer"
+                    >
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 7h13l-3-3M21 17H8l3 3" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Move to vault"
+                      className="w-11 h-11 rounded-full bg-black/40 text-white flex items-center justify-center backdrop-blur-sm hover:bg-black/55 transition-colors cursor-pointer"
+                    >
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 21h18M4 21V10l8-5 8 5v11M9 21v-6h6v6" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="More"
+                      className="w-11 h-11 rounded-full bg-black/40 text-white flex items-center justify-center backdrop-blur-sm hover:bg-black/55 transition-colors cursor-pointer"
+                    >
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                        <circle cx="5" cy="12" r="1.6" />
+                        <circle cx="12" cy="12" r="1.6" />
+                        <circle cx="19" cy="12" r="1.6" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        /* ── Section 3 — Investments: full-bleed candlestick scene (left), text overlaid right */
+        if (index === 3) {
+          return (
+            <section
+              key={section.id}
+              id={section.id}
+              className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden bg-[#0B0D12]"
+            >
+              {/* Candlestick scene — full bleed, left-anchored internally */}
+              <iframe
+                src="/investments-bg.html"
+                title="3D candlestick chart"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full border-0"
+              />
+
+              {/* Right-to-left dark fade — keeps the text readable on the right side */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(to left, rgba(11,13,18,0.94) 0%, rgba(11,13,18,0.78) 24%, rgba(11,13,18,0.35) 48%, rgba(11,13,18,0) 65%)",
+                }}
+              />
+
+              {/* Dot texture */}
+              <div
+                className="absolute inset-0 opacity-[0.025] pointer-events-none"
+                style={{
+                  backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)",
+                  backgroundSize: "32px 32px",
+                }}
+              />
+
+              {/* Text — anchored right */}
+              <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 w-full">
+                <div className="max-w-md lg:max-w-lg md:ml-auto">
+                  <p
+                    className="text-xs font-bold uppercase tracking-widest mb-5"
+                    style={{ color: section.accent }}
+                  >
+                    {section.label}
+                  </p>
+                  <h2
+                    className="text-5xl md:text-6xl lg:text-[4rem] font-bold text-white mb-6 leading-[1.04]"
+                    style={{ letterSpacing: "-0.03em" }}
+                  >
+                    {section.headline}
+                  </h2>
+                  <p className="text-[#6B7280] text-lg mb-10 leading-relaxed max-w-lg">
+                    {section.subtext}
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href={section.href}
+                      className="inline-flex items-center gap-2 bg-white text-[#0B0D12] px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#F6F7FB] transition-colors cursor-pointer"
+                    >
+                      Start investing
+                    </Link>
+                    <Link
+                      href="/contact"
+                      className="border border-white/20 text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-white/10 transition-colors cursor-pointer"
+                    >
+                      Talk to an Advisor
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        /* ── Sections 1, 4–7 — standard single-column hero with gradient bg */
         return (
           <section
             key={section.id}

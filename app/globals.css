@@ -30,3 +30,18 @@ body {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* ── Savings hero background crossfade ─────────────────────────────
+   Two slides, 14s total cycle: 6s on, 1s crossfade, 6s on, 1s crossfade.
+   Second slide is offset by 7s so they alternate cleanly. */
+@keyframes savings-bg-fade {
+  0%, 43%   { opacity: 1; }
+  50%, 93%  { opacity: 0; }
+  100%      { opacity: 1; }
+}
+.savings-slide {
+  animation: savings-bg-fade 14s ease-in-out infinite;
+}
+.savings-slide-2 {
+  animation-delay: -7s;
+}

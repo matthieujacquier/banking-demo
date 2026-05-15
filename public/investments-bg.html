@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NEXA · Investment 3D</title>
+<style>
+  :root{
+    --accent:#5BB8E5;
+    --up:#7be3a1;
+    --down:#e87b8a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
+  .nexa-scene{
+    position:relative;width:100%;height:100%;
+    display:flex; align-items:center; justify-content:flex-start;
+    padding-left: clamp(40px, 6vw, 140px);
+    perspective: 2200px;
+    perspective-origin: 35% 55%;
+  }
+  .nexa-stage{
+    position:relative;width:720px;height:520px;
+    transform-style:preserve-3d;
+    transform: rotateX(14deg) rotateY(-18deg);
+    transition: transform .6s cubic-bezier(.2,.7,.2,1);
+  }
+  .world{
+    position:absolute;inset:0;transform-style:preserve-3d;
+    animation: orbit 14s ease-in-out infinite alternate;
+  }
+  @keyframes orbit{
+    from{ transform: rotateY(-6deg) }
+    to  { transform: rotateY(6deg) }
+  }
+
+  /* floor — subtle grid plane */
+  .floor{
+    position:absolute;left:50%;top:50%;
+    width:780px;height:520px;margin:-260px 0 0 -390px;
+    transform: rotateX(90deg) translateZ(-180px);
+    background:
+      linear-gradient(180deg, transparent 0%, rgba(91,184,229,.06) 100%),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 1px, transparent 1px 60px),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 60px);
+    mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+  }
+
+  /* candles container */
+  .chart{
+    position:absolute;left:50%;top:50%;
+    width:600px;height:0;
+    transform-style:preserve-3d;
+    transform: translate(-50%, 0);
+  }
+
+  .candle{
+    position:absolute; bottom:0;
+    transform-style:preserve-3d;
+    transform-origin: 50% 100%;
+  }
+
+  /* 3D box body */
+  .body{
+    position:absolute;left:50%;bottom:0;
+    transform-style:preserve-3d;
+    transform: translateX(-50%);
+  }
+  .body .face{
+    position:absolute;
+    background-blend-mode: overlay, normal;
+  }
+  .body .front, .body .back{ left:0;top:0;width:100%;height:100%; }
+  .body .back { transform: translateZ( calc(var(--d,28px) / -2) ) rotateY(180deg); }
+  .body .front{ transform: translateZ( calc(var(--d,28px) /  2) ); }
+  .body .left {
+    left:0;top:0;width:var(--d,28px);height:100%;
+    transform: translateX( calc(var(--d,28px) / -2) ) rotateY(-90deg);
+    transform-origin: right center;
+  }
+  .body .right{
+    right:0;top:0;width:var(--d,28px);height:100%;
+    transform: translateX( calc(var(--d,28px) /  2) ) rotateY(90deg);
+    transform-origin: left center;
+  }
+  .body .top, .body .bot{
+    left:0;width:100%;height:var(--d,28px);
+  }
+  .body .top{ top:0; transform: translateY( calc(var(--d,28px) / -2) ) rotateX(90deg); transform-origin: center bottom; }
+  .body .bot{ bottom:0; transform: translateY( calc(var(--d,28px) /  2) ) rotateX(-90deg); transform-origin: center top; }
+
+  /* metal materials — muted, like Revolut */
+  .candle.up .face{
+    background:
+      linear-gradient(180deg, #6ec298 0%, #3d8262 50%, #1f4533 100%);
+  }
+  .candle.up .face.top   { background: linear-gradient(135deg, #a8dcc0, #5fb088 60%, #2e6347); }
+  .candle.up .face.bot   { background: linear-gradient(135deg, #14302a, #1f4533); }
+  .candle.up .face.left  { background: linear-gradient(90deg, #1f4533, #4f9573); }
+  .candle.up .face.right { background: linear-gradient(90deg, #4f9573, #1f4533); }
+
+  .candle.down .face{
+    background:
+      linear-gradient(180deg, #c47782 0%, #8a4250 50%, #4a232e 100%);
+  }
+  .candle.down .face.top  { background: linear-gradient(135deg, #dcaab2, #b5707d 60%, #6e3543); }
+  .candle.down .face.bot  { background: linear-gradient(135deg, #2c151c, #4a232e); }
+  .candle.down .face.left { background: linear-gradient(90deg, #4a232e, #a76573); }
+  .candle.down .face.right{ background: linear-gradient(90deg, #a76573, #4a232e); }
+
+  /* metal sheen overlay */
+  .body .face{
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), inset 0 1px 0 rgba(255,255,255,.18);
+  }
+  .body .front::before, .body .back::before{
+    content:'';position:absolute;inset:0;
+    background:
+      linear-gradient(160deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,0) 65%, rgba(0,0,0,.25) 100%),
+      repeating-linear-gradient(180deg, rgba(255,255,255,.05) 0 1px, transparent 1px 4px);
+    mix-blend-mode: overlay;
+    pointer-events:none;
+  }
+
+  /* wicks */
+  .wick{
+    position:absolute;left:50%;
+    width:2px;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.15));
+    border-radius:1px;
+  }
+  .wick.top{ bottom: var(--body-h, 80px); }
+  .wick.bot{ top: var(--body-h, 80px); }
+
+  /* glow */
+  .glow{
+    position:absolute;left:50%;top:55%;
+    width:600px;height:120px;margin:-60px 0 0 -300px;
+    background: radial-gradient(ellipse at center, rgba(91,184,229,.22), transparent 70%);
+    filter: blur(20px);
+    transform: rotateX(90deg) translateZ(-120px);
+    pointer-events:none;
+  }
+
+  /* axis line subtle */
+  .baseline{
+    position:absolute;left:50%;top:50%;
+    width:600px;height:1px;margin: 0 0 0 -300px;
+    background: linear-gradient(90deg, transparent, rgba(91,184,229,.6) 30%, rgba(91,184,229,.6) 70%, transparent);
+    transform: translateZ(0);
+    opacity:.5;
+  }
+
+  /* trend line dots — floating points connecting tops */
+  .trend{
+    position:absolute;left:0;top:0;width:600px;height:520px;
+    pointer-events:none;
+    transform: translateZ(20px);
+  }
+  .trend svg{ width:100%;height:100% }
+</style>
+</head>
+<body>
+<div class="nexa-scene">
+  <div class="nexa-stage" id="stage">
+    <div class="world">
+      <div class="glow"></div>
+      <div class="floor"></div>
+      <div class="chart" id="chart">
+        <div class="baseline"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // candle data: [direction, body height in px, wickTop, wickBot]
+  const data = [
+    ['up',   70, 22, 14],
+    ['down', 95, 12, 28],
+    ['up',  130, 30, 18],
+    ['up',  110, 24, 10],
+    ['down', 85, 18, 32],
+    ['up',  155, 36, 12],
+    ['up',  185, 22, 16],
+  ];
+  const chart = document.getElementById('chart');
+  const W = 600, candleW = 44, gap = 36, depth = 30;
+  const totalW = data.length * candleW + (data.length-1) * gap;
+  const startX = (W - totalW)/2;
+
+  data.forEach((d, i) => {
+    const [dir, h, wt, wb] = d;
+    const x = startX + i * (candleW + gap);
+    const candle = document.createElement('div');
+    candle.className = 'candle ' + dir;
+    candle.style.left = x + 'px';
+    candle.style.width = candleW + 'px';
+
+    candle.innerHTML = `
+      <div class="wick top"  style="height:${wt}px"></div>
+      <div class="body" style="width:${candleW}px; height:${h}px; --d:${depth}px; --body-h:${h}px">
+        <div class="face front"></div>
+        <div class="face back"></div>
+        <div class="face left"></div>
+        <div class="face right"></div>
+        <div class="face top"></div>
+      </div>
+    `;
+    candle.style.setProperty('--body-h', h+'px');
+    chart.appendChild(candle);
+  });
+
+  // mouse parallax
+  const stage = document.getElementById('stage');
+  let tx=0, ty=0, cx=0, cy=0;
+  window.addEventListener('mousemove', e => {
+    const rect = document.body.getBoundingClientRect();
+    tx = (e.clientX / rect.width  - .5) * 2;
+    ty = (e.clientY / rect.height - .5) * 2;
+  });
+  function loop(){
+    cx += (tx - cx) * 0.06;
+    cy += (ty - cy) * 0.06;
+    stage.style.transform = `rotateX(${14 - cy*8}deg) rotateY(${-18 + cx*16}deg)`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>
