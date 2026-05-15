@@ -167,16 +167,87 @@ export default function HomePage() {
       {/* ─── Hero sections (8 × full-screen) ─────────────────────────────── */}
       {heroSections.map((section, index) => {
         const isRight = index % 2 === 1;
+
+        /* ── Section 0 — Credit Cards: text left, 3D scene floats on the right */
+        if (index === 0) {
+          return (
+            <section
+              key={section.id}
+              id={section.id}
+              className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden bg-[#0B0D12]"
+            >
+              {/* 3D card scene — full bleed; cards float across the whole section */}
+              <iframe
+                src="/nexa-cards-bg.html"
+                title="NexaBank 3D cards"
+                loading="lazy"
+                className="absolute inset-0 w-full h-full border-0"
+              />
+
+              {/* Left-to-right dark fade — keeps text legible without cropping the cards */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(to right, rgba(11,13,18,0.92) 0%, rgba(11,13,18,0.78) 22%, rgba(11,13,18,0.35) 45%, rgba(11,13,18,0) 65%)",
+                }}
+              />
+
+              {/* Dot texture overlay */}
+              <div
+                className="absolute inset-0 opacity-[0.025] pointer-events-none"
+                style={{
+                  backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)",
+                  backgroundSize: "32px 32px",
+                }}
+              />
+
+              {/* Text content — anchored left, narrow column so it never reaches the cards */}
+              <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 w-full">
+                <div className="max-w-md lg:max-w-lg">
+                  <p
+                    className="text-xs font-bold uppercase tracking-widest mb-5"
+                    style={{ color: section.accent }}
+                  >
+                    {section.label}
+                  </p>
+                  <h2
+                    className="text-5xl md:text-6xl lg:text-[4rem] font-bold text-white mb-6 leading-[1.04]"
+                    style={{ letterSpacing: "-0.03em" }}
+                  >
+                    {section.headline}
+                  </h2>
+                  <p className="text-[#6B7280] text-lg mb-10 leading-relaxed max-w-lg">
+                    {section.subtext}
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href={section.href}
+                      className="inline-flex items-center gap-2 bg-white text-[#0B0D12] px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#F6F7FB] transition-colors cursor-pointer"
+                    >
+                      Learn More
+                    </Link>
+                    <Link
+                      href="/contact"
+                      className="border border-white/20 text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-white/10 transition-colors cursor-pointer"
+                    >
+                      Talk to an Advisor
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        /* ── Sections 1–7 — standard single-column hero with gradient bg */
         return (
           <section
             key={section.id}
             id={section.id}
             className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden"
           >
-            {/* Placeholder background — replace with animated 3D canvas */}
             <div className="absolute inset-0" style={{ background: section.bg }} />
-
-            {/* Subtle dot texture overlay */}
             <div
               className="absolute inset-0 opacity-[0.025]"
               style={{
@@ -184,9 +255,7 @@ export default function HomePage() {
                 backgroundSize: "32px 32px",
               }}
             />
-
-            {/* Content */}
-            <div className="relative max-w-7xl mx-auto px-6 py-20 w-full">
+            <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 w-full">
               <div className={`max-w-2xl ${isRight ? "md:ml-auto" : ""}`}>
                 <p
                   className="text-xs font-bold uppercase tracking-widest mb-5"

@@ -59,7 +59,7 @@ const CFG = {
 
   /* ── Camera ────────────────────────────────────────────────── */
   fov:      52,
-  cameraZ:  9.5,
+  cameraZ:  6.4,
   parallax: 0.06,       /* mouse parallax strength (0 = disabled)  */
 
   /* ── Lighting ──────────────────────────────────────────────── */
@@ -81,56 +81,20 @@ const CFG = {
   rotAmpX:  0.028,    /* max extra rotation on X                    */
   rotAmpY:  0.048,    /* max extra rotation on Y                    */
 
-  /* ── 4 Card designs — NexaBank tiers ──────────────────────── */
+  /* ── V3 DEEP MATTE + EMBOSSED ─────────────────────────────── */
   cards: [
-    {
-      label:  'NexaPrestige',
-      number: '••••  ••••  ••••  4291',
-      holder: 'SOPHIE LAMBERT',
-      expiry: '12 / 29',
-      g0:    '#1A0A02',  /* gradient start — near-black brown       */
-      g1:    '#78350F',  /* gradient end — deep amber (amber-800)   */
-      accent: '#B45309', /* design-system Prestige accent           */
-      chip:   '#FCD34D', /* EMV chip gold                           */
-      text:   '#FEF3C7', /* primary text                            */
-      sub:    'rgba(252,211,77,0.55)',
-    },
-    {
-      label:  'NexaNomad',
-      number: '••••  ••••  ••••  7738',
-      holder: 'THOMAS MARTIN',
-      expiry: '08 / 27',
-      g0:    '#042F3A',  /* near-black teal                          */
-      g1:    '#155E75',  /* deep cyan (cyan-800)                     */
-      accent: '#0891B2', /* design-system Nomad/Travel accent        */
-      chip:   '#67E8F9',
-      text:   '#E0F2FE',
-      sub:    'rgba(103,232,249,0.55)',
-    },
-    {
-      label:  'NexaEssential',
-      number: '••••  ••••  ••••  5502',
-      holder: 'ELENA ROSSI',
-      expiry: '03 / 28',
-      g0:    '#0A0F2C',  /* near-black navy                          */
-      g1:    '#1E3A8A',  /* deep blue (blue-900)                     */
-      accent: '#2563FF', /* design-system Essential/Real Estate      */
-      chip:   '#93C5FD',
-      text:   '#DBEAFE',
-      sub:    'rgba(147,197,253,0.55)',
-    },
-    {
-      label:  'NexaStart',
-      number: '••••  ••••  ••••  9147',
-      holder: 'ALEX DUBOIS',
-      expiry: '06 / 30',
-      g0:    '#052E16',  /* near-black forest (green-950)            */
-      g1:    '#166534',  /* deep green (green-800)                   */
-      accent: '#16A34A', /* design-system Start/Student accent       */
-      chip:   '#86EFAC',
-      text:   '#D1FAE5',
-      sub:    'rgba(134,239,172,0.55)',
-    },
+    { label: 'NexaPrestige', number: '••••  ••••  ••••  4291', holder: 'SOPHIE LAMBERT', expiry: '12 / 29',
+      g0: '#1C1917', g1: '#0C0A09', accent: '#A1A1AA', chip: '#D4D4D8',
+      text: '#FAFAFA', sub: 'rgba(250,250,250,0.45)' },
+    { label: 'NexaNomad', number: '••••  ••••  ••••  7738', holder: 'THOMAS MARTIN', expiry: '08 / 27',
+      g0: '#0A1628', g1: '#020817', accent: '#64748B', chip: '#94A3B8',
+      text: '#F1F5F9', sub: 'rgba(241,245,249,0.45)' },
+    { label: 'NexaEssential', number: '••••  ••••  ••••  5502', holder: 'ELENA ROSSI', expiry: '03 / 28',
+      g0: '#052E2B', g1: '#022C22', accent: '#5EEAD4', chip: '#5EEAD4',
+      text: '#F0FDFA', sub: 'rgba(240,253,250,0.45)' },
+    { label: 'NexaStart', number: '••••  ••••  ••••  9147', holder: 'ALEX DUBOIS', expiry: '06 / 30',
+      g0: '#2C0B12', g1: '#1A0306', accent: '#FB7185', chip: '#FB7185',
+      text: '#FFF1F2', sub: 'rgba(255,241,242,0.45)' },
   ],
 
   /* ── 3-D layout per card ───────────────────────────────────── */
@@ -319,6 +283,18 @@ function buildFront(card) {
   /* ── Mastercard logo — bottom right */
   drawMastercard(c, TW - 130, 530, 50);
 
+  /* ── V3: Brushed-metal rim — vertical light-to-dark gradient stroke, no glow */
+  c.save();
+  const rimGrad = c.createLinearGradient(0, 0, 0, TH);
+  rimGrad.addColorStop(0.0, 'rgba(255,255,255,0.32)');
+  rimGrad.addColorStop(0.5, 'rgba(255,255,255,0.08)');
+  rimGrad.addColorStop(1.0, 'rgba(255,255,255,0.22)');
+  c.strokeStyle = rimGrad;
+  c.lineWidth   = 3;
+  roundRectPath(c, 6, 6, TW - 12, TH - 12, 36);
+  c.stroke();
+  c.restore();
+
   return new THREE.CanvasTexture(cv);
 }
 
@@ -492,7 +468,7 @@ function buildScene() {
 
     /* Rounded card body — sides + bevel edges, single dark material */
     group.add(new THREE.Mesh(bodyGeo,
-      new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.28, metalness: 0.85 })
+      new THREE.MeshStandardMaterial({ color: sideColor, roughness: 0.62, metalness: 0.45 })
     ));
 
     /* Front face — plastic, not metal. metalness=0 so the texture renders as diffuse albedo.
@@ -500,8 +476,8 @@ function buildScene() {
     const front = new THREE.Mesh(faceGeo,
       new THREE.MeshStandardMaterial({
         map:        ftex,
-        roughness:  0.55,
-        metalness:  0.0,
+        roughness:  0.72,
+        metalness:  0.22,
       })
     );
     front.position.z = FACE_Z;
