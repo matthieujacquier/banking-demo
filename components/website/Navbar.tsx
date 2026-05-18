@@ -97,17 +97,21 @@ const megaColumns = [
 
 export default function Navbar() {
   return (
-    <nav className="bg-white border-b border-[#D8E0ED] sticky top-0 z-50">
+    <nav className="bg-[#0B0D12] border-b border-white/10 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold tracking-tight text-[#0B0D12] flex-shrink-0">
-          Nexa<span className="text-[#2563FF]">Bank</span>
+        <Link
+          href="/"
+          className="text-white flex-shrink-0 font-[var(--font-outfit)] italic font-extrabold text-2xl"
+          style={{ letterSpacing: "-0.025em" }}
+        >
+          NEXA
         </Link>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-[#1F2937] h-16">
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/65 h-16">
 
           {/* Products mega-menu */}
           <div className="group relative h-full flex items-center">
-            <span className="flex items-center gap-1 cursor-default hover:text-[#2563FF] transition-colors select-none">
+            <span className="flex items-center gap-1 cursor-default hover:text-white transition-colors select-none">
               Products
               <span className="transition-transform duration-200 group-hover:rotate-180 flex items-center">
                 <ChevronDown />
@@ -116,8 +120,8 @@ export default function Navbar() {
             {/* Dropdown panel — no gap so hover bridge is seamless */}
             <div className="absolute top-full left-0 hidden group-hover:block z-50 w-[660px]">
               <div
-                className="mt-0 bg-white rounded-2xl border border-[#D8E0ED] p-6 grid grid-cols-3 gap-x-8 gap-y-0"
-                style={{ boxShadow: "0 16px 48px rgba(11,13,18,0.12)" }}
+                className="mt-0 bg-[#0B0D12] rounded-2xl border border-white/10 p-6 grid grid-cols-3 gap-x-8 gap-y-0"
+                style={{ boxShadow: "0 16px 48px rgba(0,0,0,0.5)" }}
               >
                 {megaColumns.map((col, ci) => (
                   <div key={ci} className="space-y-5">
@@ -125,7 +129,7 @@ export default function Navbar() {
                       <div key={group.heading}>
                         <Link
                           href={group.href}
-                          className="block text-xs font-bold uppercase tracking-widest text-[#2563FF] mb-2 hover:text-[#1746D1] transition-colors"
+                          className="block text-xs font-bold uppercase tracking-widest text-white mb-2 hover:text-white/80 transition-colors"
                         >
                           {group.heading}
                         </Link>
@@ -134,7 +138,7 @@ export default function Navbar() {
                             <li key={item.label}>
                               <Link
                                 href={item.href}
-                                className="text-sm text-[#6B7280] hover:text-[#0B0D12] transition-colors block py-0.5"
+                                className="text-sm text-white/55 hover:text-white transition-colors block py-0.5"
                               >
                                 {item.label}
                               </Link>
@@ -149,17 +153,25 @@ export default function Navbar() {
             </div>
           </div>
 
-          <Link href="/#plans" className="hover:text-[#2563FF] transition-colors">Plans</Link>
-          <Link href="/about" className="hover:text-[#2563FF] transition-colors">About</Link>
-          <Link href="/contact" className="hover:text-[#2563FF] transition-colors">Contact</Link>
+          <Link href="/#plans" className="hover:text-white transition-colors">Plans</Link>
+          <Link href="/about" className="hover:text-white transition-colors">About</Link>
+          <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
         </div>
 
-        <Link
-          href="/login"
-          className="bg-[#0B0D12] text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-[#1A1F2C] transition-colors"
-        >
-          Sign In
-        </Link>
+        <div className="flex items-center gap-2.5">
+          <Link
+            href="/login"
+            className="hidden sm:inline-flex border border-white/20 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-white/5 hover:border-white/50 transition-colors"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/login"
+            className="bg-white text-[#0B0D12] px-4 py-2 rounded-full text-sm font-bold hover:bg-[#F6F7FB] transition-colors"
+          >
+            Open account
+          </Link>
+        </div>
       </div>
     </nav>
   );

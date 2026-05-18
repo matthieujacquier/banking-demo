@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
+const outfit = Outfit({ subsets: ["latin"], weight: ["800"], variable: "--font-outfit" });
 
 export const metadata: Metadata = {
   title: "NexaBank",
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* DY scripts are injected per-page via DYContext to guarantee
             recommendationContext is set before api_dynamic.js loads */}
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.className} ${outfit.variable}`}>{children}</body>
     </html>
   );
 }
