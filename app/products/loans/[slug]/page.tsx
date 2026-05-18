@@ -9,6 +9,7 @@ const PRODUCTS = {
     sku: "LOAN-VEH-001",
     category: "Vehicle",
     accent: "#0891B2",
+    hero: "/loans/car-loan.jpg",
     name: "Vehicle Financing",
     tagline: "Drive away sooner with flexible financing for new and used cars.",
     rate: "from 5.5% APR",
@@ -34,6 +35,7 @@ const PRODUCTS = {
     sku: "LOAN-REAL-001",
     category: "Real Estate",
     accent: "#2563FF",
+    hero: "/loans/real-estate-loan.jpg",
     name: "Real Estate Loan",
     tagline: "Your home journey starts here — competitive rates, long-term flexibility.",
     rate: "from 3.9% APR",
@@ -59,6 +61,7 @@ const PRODUCTS = {
     sku: "LOAN-SHORT-001",
     category: "Short Term",
     accent: "#EA580C",
+    hero: "/loans/short-term-loan.jpg",
     name: "Short Term Loan",
     tagline: "Fast funds when you need them — in your account within 24 hours.",
     rate: "from 8.9% APR",
@@ -84,6 +87,7 @@ const PRODUCTS = {
     sku: "LOAN-STU-001",
     category: "Education",
     accent: "#16A34A",
+    hero: "/loans/student-loan.jpg",
     name: "Student Loan",
     tagline: "Invest in your education — our lowest rates, built for students.",
     rate: "from 2.9% APR",
@@ -109,6 +113,7 @@ const PRODUCTS = {
     sku: "LOAN-RENO-001",
     category: "Home Improvement",
     accent: "#7C3AED",
+    hero: "/loans/renovation-loan.jpg",
     name: "House Renovation Loan",
     tagline: "Transform your home — from kitchen to full refurbishment.",
     rate: "from 4.5% APR",
@@ -151,13 +156,23 @@ export default async function LoanProductPage({
       <Navbar />
 
       {/* Hero */}
-      <section className="bg-[#0B0D12] text-white py-20 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section
+        className="relative bg-[#0B0D12] text-white py-32 px-6 bg-cover bg-center"
+        style={{ backgroundImage: `url(${product.hero})` }}
+      >
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(11,13,18,0.85) 0%, rgba(11,13,18,0.65) 50%, rgba(11,13,18,0.25) 100%)",
+          }}
+        />
+        <div className="relative max-w-7xl mx-auto">
           <div className="flex items-center gap-2 text-sm mb-6">
-            <Link href="/products/loans" className="text-[#6B7280] hover:text-[#2563FF] transition-colors">
+            <Link href="/products/loans" className="text-white/70 hover:text-white transition-colors">
               Loans
             </Link>
-            <span className="text-[#6B7280]">›</span>
+            <span className="text-white/70">›</span>
             <span className="text-white">{product.name}</span>
           </div>
           <span
@@ -169,7 +184,7 @@ export default async function LoanProductPage({
           <h1 className="text-5xl font-bold mb-4" style={{ letterSpacing: "-0.025em" }}>
             {product.name}
           </h1>
-          <p className="text-[#6B7280] text-lg max-w-xl">{product.tagline}</p>
+          <p className="text-white/85 text-lg max-w-xl">{product.tagline}</p>
         </div>
       </section>
 
