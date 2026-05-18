@@ -754,7 +754,72 @@ export default function HomePage() {
           );
         }
 
-        /* ── Sections 1, 7 — standard single-column hero with gradient bg */
+        /* ── Section 7 — Private Banking: black/rose-gold marble background, text right */
+        if (index === 7) {
+          return (
+            <section
+              key={section.id}
+              id={section.id}
+              className="relative min-h-[calc(100vh-4rem)] flex items-center overflow-hidden bg-[#0B0D12]"
+            >
+              {/* Marble background — full bleed */}
+              <Image
+                src="/private-banking-bg.jpg"
+                alt=""
+                fill
+                sizes="100vw"
+                className="object-cover"
+                priority={false}
+              />
+
+              {/* Right-to-left dark fade — protects the text column on the right */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(to left, rgba(11,13,18,0.92) 0%, rgba(11,13,18,0.7) 30%, rgba(11,13,18,0.35) 60%, rgba(11,13,18,0.15) 100%)",
+                }}
+              />
+
+              {/* Text — anchored right */}
+              <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 w-full">
+                <div className="max-w-md lg:max-w-lg md:ml-auto">
+                  <p
+                    className="text-xs font-bold uppercase tracking-widest mb-5"
+                    style={{ color: section.accent }}
+                  >
+                    {section.label}
+                  </p>
+                  <h2
+                    className="text-5xl md:text-6xl lg:text-[4rem] font-bold text-white mb-6 leading-[1.04]"
+                    style={{ letterSpacing: "-0.03em" }}
+                  >
+                    {section.headline}
+                  </h2>
+                  <p className="text-white/80 text-lg mb-10 leading-relaxed max-w-lg">
+                    {section.subtext}
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href={section.href}
+                      className="inline-flex items-center gap-2 bg-white text-[#0B0D12] px-7 py-3.5 rounded-full font-bold text-sm hover:bg-[#F6F7FB] transition-colors cursor-pointer"
+                    >
+                      Discover Private Banking
+                    </Link>
+                    <Link
+                      href="/contact"
+                      className="border border-white/30 text-white px-7 py-3.5 rounded-full font-bold text-sm hover:bg-white/10 transition-colors cursor-pointer"
+                    >
+                      Talk to an Advisor
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        /* ── Section 1 — standard single-column hero with gradient bg (fallback) */
         return (
           <section
             key={section.id}
