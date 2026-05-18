@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>NexaBank · Cashback 3D</title>
+
+<style>
+  :root{ --accent:#1FA88C; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:transparent;overflow:hidden;
+    font-family:-apple-system,'SF Pro Display','Helvetica Neue',Helvetica,Arial,sans-serif}
+  .scene{
+    position:relative;width:100%;height:100%;
+    display:grid;place-items:center end;
+    padding-right: calc(4% + 60px);
+    perspective: 2400px;
+    perspective-origin: 70% 45%;
+  }
+  .stage{
+    position:relative;
+    width: 360px; height: 720px;
+    transform-style:preserve-3d;
+    animation: bob 6.5s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform: translateY(0) rotateZ(-.5deg) }
+    50%   { transform: translateY(-14px) rotateZ(.5deg) }
+  }
+  .tilt{
+    position:absolute;inset:0;transform-style:preserve-3d;
+    transform: rotateY(-18deg) rotateX(6deg);
+    transition: transform .5s cubic-bezier(.2,.7,.2,1);
+    will-change: transform;
+  }
+
+  /* Phone body */
+  .phone{
+    position:absolute;inset:0;
+    border-radius: 52px;
+    background:
+      linear-gradient(155deg, #2a2a30 0%, #16161a 45%, #0a0a0c 100%);
+    box-shadow:
+      inset 0 0 0 1.5px rgba(255,255,255,.08),
+      inset 0 1px 0 rgba(255,255,255,.15),
+      0 50px 120px -30px rgba(0,0,0,.7),
+      0 0 0 1px rgba(0,0,0,.6);
+    transform-style: preserve-3d;
+  }
+  /* Phone side / thickness behind */
+  .phone-side{
+    position:absolute;inset:0;
+    border-radius: 52px;
+    background: #050507;
+    transform: translateZ(-18px);
+    box-shadow: 0 0 30px rgba(0,0,0,.8);
+  }
+  /* Screen — recessed inner */
+  .screen{
+    position:absolute;
+    top: 14px; left:14px; right:14px; bottom:14px;
+    border-radius: 42px;
+    background: #050507;
+    overflow:hidden;
+    transform: translateZ(2px);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.04),
+      inset 0 0 60px rgba(0,0,0,.6);
+  }
+  /* Glossy reflection on the screen */
+  .screen::after{
+    content:'';position:absolute;inset:0;
+    background:
+      linear-gradient(125deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,.04) 100%),
+      radial-gradient(ellipse at 20% 0%, rgba(31,168,140,.10), transparent 50%);
+    pointer-events:none;
+    z-index: 100;
+  }
+  /* Dynamic island */
+  .island{
+    position:absolute;left:50%;top:12px;transform:translateX(-50%);
+    width: 110px;height:32px;border-radius:99px;
+    background:#000;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    z-index: 10;
+  }
+
+  /* Wallpaper */
+  .wallpaper{
+    position:absolute;inset:0;
+    background:
+      radial-gradient(circle at 20% 90%, rgba(31,168,140,.26), transparent 50%),
+      radial-gradient(circle at 80% 10%, rgba(95,224,188,.10), transparent 50%),
+      linear-gradient(180deg, #0e0e14 0%, #050507 60%);
+  }
+
+  /* Status bar */
+  .status{
+    position:absolute;top:0;left:0;right:0;height:54px;
+    display:flex;align-items:center;justify-content:space-between;
+    padding: 18px 30px 0;
+    color:#fff;font-size:14px;font-weight:600;
+    letter-spacing:.2px;
+    z-index: 5;
+  }
+  .status .ind{display:flex;gap:5px;align-items:center}
+  .status .bar{width:3px;height:9px;background:#fff;border-radius:1px}
+  .status .bar:nth-child(2){height:11px}
+  .status .bar:nth-child(3){height:13px}
+  .status .bar:nth-child(4){height:15px}
+
+  /* Lock screen content under notifications */
+  .lock-time{
+    position:absolute;top:80px;left:0;right:0;
+    text-align:center;color:#fff;
+    font-size:14px;font-weight:600;letter-spacing:.5px;
+    opacity:.85;
+  }
+  .lock-clock{
+    position:absolute;top:104px;left:0;right:0;
+    text-align:center;color:#fff;
+    font-size: 86px;font-weight: 300;letter-spacing:-2px;
+    line-height: 1;
+    text-shadow: 0 2px 24px rgba(0,0,0,.6);
+  }
+
+  /* Notification stack */
+  .notifs{
+    position:absolute;left:14px;right:14px;
+    top: 240px;
+    height: 380px;
+    transform-style: preserve-3d;
+  }
+  .notif{
+    position:absolute;left:0;right:0;
+    background: rgba(40,40,46,.72);
+    -webkit-backdrop-filter: blur(28px) saturate(170%);
+            backdrop-filter: blur(28px) saturate(170%);
+    border-radius: 22px;
+    box-shadow:
+      inset 0 0 0 .5px rgba(255,255,255,.12),
+      inset 0 1px 0 rgba(255,255,255,.18),
+      0 8px 24px -8px rgba(0,0,0,.6);
+    padding: 12px 14px;
+    color:#fff;
+    transition: transform .55s cubic-bezier(.2,.8,.2,1), opacity .55s ease;
+    display:flex; gap:12px; align-items:flex-start;
+    transform-origin: 50% 0%;
+  }
+  .notif .icon{
+    width:32px; height:32px; border-radius:7px;
+    flex-shrink:0;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,.3), transparent 50%),
+      linear-gradient(135deg, #1FA88C 0%, #0A4A3D 100%);
+    display:grid; place-items:center;
+    font-size: 16px; font-weight: 900; color:#fff;
+    letter-spacing:-.5px;
+    box-shadow: inset 0 0 0 .5px rgba(255,255,255,.25), 0 2px 6px rgba(31,168,140,.4);
+  }
+  .notif .body{ flex:1; min-width:0; }
+  .notif .head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size: 12px; font-weight:600; opacity:.9;
+    margin-bottom: 2px;
+  }
+  .notif .head .app{ letter-spacing:.1px }
+  .notif .head .time{ font-size:11px; opacity:.55; font-weight:500 }
+  .notif .msg{
+    font-size: 13px; font-weight: 400; line-height: 1.32;
+    color: rgba(255,255,255,.95);
+    letter-spacing:-.1px;
+  }
+  .notif .amt{
+    color: #5FE0BC; font-weight: 600;
+  }
+
+  /* Floating cashback drop animation — green coins flying out */
+  .drop{
+    position:absolute;
+    width:14px; height:14px; border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,.8), transparent 50%),
+      radial-gradient(circle at 50% 50%, #5FE0BC, #0A4A3D 65%);
+    box-shadow: 0 0 12px rgba(31,168,140,.6), inset 0 0 0 1px rgba(255,255,255,.2);
+    z-index: 50;
+  }
+
+  /* Reflection / floor */
+  .floor{
+    position:absolute;left:50%;top:100%;
+    width: 280px; height: 50px; margin: 14px 0 0 -140px;
+    background: radial-gradient(ellipse at center, rgba(31,168,140,.26), transparent 70%);
+    filter: blur(16px);
+    transform: rotateX(82deg) translateZ(-80px);
+    pointer-events:none;
+  }
+  /* Side caustic glow on phone */
+  .halo{
+    position:absolute;left:-80px;right:-80px;top:-40px;bottom:-40px;
+    background:
+      radial-gradient(ellipse at 30% 30%, rgba(31,168,140,.12), transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(95,224,188,.07), transparent 50%);
+    pointer-events:none;
+    transform: translateZ(-40px);
+    filter: blur(20px);
+  }
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="stage" id="stage">
+    <div class="tilt" id="tilt">
+      <div class="halo"></div>
+      <div class="phone-side"></div>
+      <div class="phone">
+        <div class="screen">
+          <div class="wallpaper"></div>
+          <div class="island"></div>
+
+          <div class="status">
+            <span>9:41</span>
+            <div class="ind">
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            </div>
+          </div>
+
+          <div class="lock-time">Monday 18 May</div>
+          <div class="lock-clock">9:41</div>
+
+          <div class="notifs" id="notifs">
+            <!-- notifications inserted by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- floating cashback drops -->
+      <div class="drop" id="drop1" style="left:80%;top:30%"></div>
+      <div class="drop" id="drop2" style="left:-8%;top:55%; width:10px;height:10px"></div>
+      <div class="drop" id="drop3" style="left:95%;top:62%; width:16px;height:16px"></div>
+    </div>
+    <div class="floor"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Notification queue
+  const ITEMS = [
+    { brand: 'Starbucks',   amount: '€1.20',  emoji: '☕' },
+    { brand: 'Uber',        amount: '€4.50',  emoji: '🚕' },
+    { brand: 'Amazon',      amount: '€2.85',  emoji: '📦' },
+    { brand: 'Spotify',     amount: '€0.50',  emoji: '🎵' },
+    { brand: 'Carrefour',   amount: '€3.40',  emoji: '🛒' },
+    { brand: 'Apple',       amount: '€7.90',  emoji: '' },
+    { brand: 'Booking.com', amount: '€18.60', emoji: '✈️' },
+    { brand: 'Deliveroo',   amount: '€1.95',  emoji: '🍔' },
+  ];
+
+  const notifs = document.getElementById('notifs');
+  let queue = [];
+  let counter = 0;
+
+  function makeNotif(item, age){
+    const el = document.createElement('div');
+    el.className = 'notif';
+    el.innerHTML = `
+      <div class="icon">N</div>
+      <div class="body">
+        <div class="head">
+          <span class="app">NEXABANK</span>
+          <span class="time">${age}</span>
+        </div>
+        <div class="msg">You earned <span class="amt">${item.amount}</span> cashback at ${item.brand} ${item.emoji}</div>
+      </div>
+    `;
+    return el;
+  }
+
+  function position(el, idx){
+    // newest (idx=0) sits at top, each older one is offset down a bit and slightly scaled
+    const y = idx * 80;
+    const scale = 1 - idx * 0.04;
+    const opacity = idx >= 4 ? 0 : 1 - idx * 0.18;
+    el.style.transform = `translate3d(0, ${y}px, ${-idx * 6}px) scale(${scale})`;
+    el.style.opacity = opacity;
+    el.style.zIndex = 100 - idx;
+  }
+
+  function ageLabel(i){
+    if (i === 0) return 'now';
+    if (i === 1) return '1m ago';
+    if (i === 2) return '4m ago';
+    return (i * 6) + 'm ago';
+  }
+
+  // Seed initial state
+  for (let i = 3; i >= 0; i--){
+    const item = ITEMS[i % ITEMS.length];
+    const el = makeNotif(item, ageLabel(i));
+    notifs.appendChild(el);
+    queue.push(el);
+    position(el, i);
+  }
+  counter = 4;
+
+  // Drop in a new notification every ~2.8s
+  setInterval(() => {
+    const item = ITEMS[counter % ITEMS.length];
+    counter++;
+    const el = makeNotif(item, 'now');
+    // start above the visible stack
+    el.style.transform = 'translate3d(0, -90px, 20px) scale(.94)';
+    el.style.opacity = '0';
+    notifs.appendChild(el);
+    queue.unshift(el);
+
+    // shove down existing
+    requestAnimationFrame(() => {
+      queue.forEach((n, i) => {
+        // update time label
+        const timeEl = n.querySelector('.time');
+        if (timeEl) timeEl.textContent = ageLabel(i);
+        position(n, i);
+      });
+    });
+
+    // cleanup old
+    while (queue.length > 6){
+      const old = queue.pop();
+      old.style.transition = 'opacity .4s, transform .4s';
+      old.style.opacity = '0';
+      setTimeout(() => old.remove(), 500);
+    }
+  }, 2800);
+
+  // Animate the floating drops
+  const drops = [
+    { el: document.getElementById('drop1'), ax: 0, ay: 0, freq: 4.5, ampX: 30, ampY: 40 },
+    { el: document.getElementById('drop2'), ax: 1, ay: 2, freq: 5.5, ampX: 25, ampY: 35 },
+    { el: document.getElementById('drop3'), ax: 2, ay: 1, freq: 6.0, ampX: 28, ampY: 45 },
+  ];
+  const t0 = performance.now();
+  function animateDrops(t){
+    const dt = (t - t0) / 1000;
+    drops.forEach(d => {
+      const px = Math.sin(dt * (Math.PI*2 / d.freq) + d.ax) * d.ampX;
+      const py = Math.cos(dt * (Math.PI*2 / d.freq) + d.ay) * d.ampY;
+      d.el.style.transform = `translate3d(${px}px, ${py}px, ${Math.sin(dt + d.ax) * 30}px)`;
+    });
+    requestAnimationFrame(animateDrops);
+  }
+  requestAnimationFrame(animateDrops);
+
+  // Mouse parallax
+  const tilt = document.getElementById('tilt');
+  let tx=0, ty=0, cx=0, cy=0;
+  window.addEventListener('mousemove', e => {
+    const rect = document.body.getBoundingClientRect();
+    tx = (e.clientX / rect.width  - .5) * 2;
+    ty = (e.clientY / rect.height - .5) * 2;
+  });
+  function loop(){
+    cx += (tx - cx) * 0.06;
+    cy += (ty - cy) * 0.06;
+    tilt.style.transform = `rotateY(${-18 + cx * 16}deg) rotateX(${6 - cy * 10}deg)`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+
+
+</body></html>
