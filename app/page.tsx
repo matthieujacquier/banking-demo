@@ -183,6 +183,7 @@ export default function HomePage() {
                 title="NexaBank 3D cards"
                 loading="lazy"
                 className="absolute inset-0 w-full h-full border-0"
+                style={{ transform: "translateX(10%)" }}
               />
 
               {/* Left-to-right dark fade — keeps text legible without cropping the cards */}
