@@ -57,7 +57,7 @@ export default function LoanAmountCalculator({
   const [email, setEmail] = useState("");
   const [submitState, setSubmitState] = useState<"idle" | "submitting" | "sent" | "error">("idle");
 
-  const { tier, label: tierLabel } = useMemo(() => classifyTier(amount), [amount]);
+  const { tier } = useMemo(() => classifyTier(amount), [amount]);
   const monthlyPayment = useMemo(
     () => monthlyPaymentOf(amount, apr, termMonths),
     [amount, apr, termMonths],
@@ -82,6 +82,29 @@ export default function LoanAmountCalculator({
     }
   }
 
+  // Persist the calculator state to localStorage + push to dataLayer so a DY
+  // custom evaluator (or any other tag manager) can read it without depending
+  // on DY's session-data lookup. Called from each effect/event below.
+  function publishState(extra?: { event: string; email?: string }) {
+    const payload = {
+      sku: productSku,
+      amount,
+      termMonths,
+      tier,
+      monthlyPayment: Math.round(monthlyPayment),
+      ...(extra?.email ? { email: extra.email } : {}),
+      updatedAt: new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem("nexabank.realestateLoan", JSON.stringify(payload));
+    } catch {
+      // localStorage unavailable (private mode, quota) — ignore silently.
+    }
+    const w = window as unknown as { dataLayer?: unknown[] };
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push({ event: extra?.event ?? "real_estate_loan_calculation", ...payload });
+  }
+
   // Debounced slider engagement signal (~400ms after the user stops dragging).
   useEffect(() => {
     const id = window.setTimeout(() => {
@@ -96,8 +119,12 @@ export default function LoanAmountCalculator({
           monthlyPayment: Math.round(monthlyPayment),
         },
       });
+      publishState({ event: "real_estate_loan_calculation" });
     }, 400);
     return () => window.clearTimeout(id);
+    // publishState is intentionally not in deps — its identity changes every
+    // render and the closure captures the values we care about from deps below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount, termMonths, tier, monthlyPayment, productSku]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -121,6 +148,7 @@ export default function LoanAmountCalculator({
         monthlyPayment: Math.round(monthlyPayment),
       },
     });
+    publishState({ event: "real_estate_loan_quote_requested", email });
     setSubmitState("sent");
   }
 
@@ -194,20 +222,13 @@ export default function LoanAmountCalculator({
         </div>
       </div>
 
-      {/* Estimate + tier */}
+      {/* Estimate */}
       <div className="border-t border-[#D8E0ED] pt-5 mb-6">
-        <div className="flex justify-between items-baseline mb-4">
+        <div className="flex justify-between items-baseline">
           <span className="text-sm text-[#6B7280]">Estimated monthly payment</span>
           <span className="text-2xl font-bold text-[#0B0D12]" style={{ letterSpacing: "-0.02em" }}>
             {euro(monthlyPayment)} <span className="text-sm font-normal text-[#6B7280]">/ mo</span>
           </span>
-        </div>
-        <div
-          className="rounded-2xl px-4 py-3 text-sm font-semibold flex items-center justify-between"
-          style={{ backgroundColor: `${accentColor}10`, color: accentColor }}
-        >
-          <span className="uppercase tracking-widest text-xs text-[#6B7280] font-bold">Profile</span>
-          <span>{tierLabel}</span>
         </div>
       </div>
 
