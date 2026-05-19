@@ -895,6 +895,7 @@ export default function HomePage() {
             {plans.map((plan) => (
               <div
                 key={plan.sku}
+                id={plan.sku === "CARD-NOM-001" ? "dy-card-nexanomad" : undefined}
                 className="bg-white rounded-3xl border border-[#D8E0ED] p-6 flex flex-col relative"
                 style={{ boxShadow: "0 16px 34px rgba(11,13,18,0.07)" }}
               >
