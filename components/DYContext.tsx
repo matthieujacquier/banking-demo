@@ -1,5 +1,6 @@
 import Script from "next/script";
 import { DY_SITE_ID } from "@/lib/dy-config";
+import DYContextUpdater from "./DYContextUpdater";
 
 type DYPageContext =
   | { type: "HOMEPAGE" }
@@ -32,6 +33,11 @@ export default function DYContext({ context }: { context: DYPageContext }) {
         strategy="beforeInteractive"
         src={`//cdn.dynamicyield.com/api/${DY_SITE_ID}/api_static.js`}
       />
+      {/* Mirror context into window.DY on every client render so DY's
+          "context change" detection (Pageview Detection setting) picks up
+          Next.js soft-navigations. The beforeInteractive scripts above only
+          run on initial document load. */}
+      <DYContextUpdater context={context} />
     </>
   );
 }
