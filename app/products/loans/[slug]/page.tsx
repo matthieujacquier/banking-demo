@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Navbar from "@/components/website/Navbar";
 import Footer from "@/components/website/Footer";
 import DYContext from "@/components/DYContext";
+import LoanAmountCalculator from "@/components/website/LoanAmountCalculator";
 import Link from "next/link";
 
 const PRODUCTS = {
@@ -39,7 +40,7 @@ const PRODUCTS = {
     name: "Real Estate Loan",
     tagline: "Your home journey starts here — competitive rates, long-term flexibility.",
     rate: "from 3.9% APR",
-    amount: "€50,000 – €1,000,000",
+    amount: "€50,000 – €3,000,000",
     term: "Up to 30 years",
     description:
       "From first-time buyers to seasoned investors, our Real Estate Loan offers competitive rates and the flexibility to match your project. Choose between fixed and variable rates, borrow up to 90% of the property value, and benefit from a free valuation included with every application.",
@@ -200,6 +201,16 @@ export default async function LoanProductPage({
               </h2>
               <p className="text-[#6B7280] leading-relaxed">{product.description}</p>
             </div>
+
+            {slug === "real-estate-loan" && (
+              <LoanAmountCalculator
+                productSku={product.sku}
+                accentColor={product.accent}
+                apr={3.9}
+                minAmount={50_000}
+                maxAmount={3_000_000}
+              />
+            )}
 
             <div className="bg-white rounded-3xl border border-[#D8E0ED] p-8" style={{ boxShadow: "0 16px 34px rgba(11,13,18,0.07)" }}>
               <h2 className="text-xl font-bold text-[#0B0D12] mb-5" style={{ letterSpacing: "-0.01em" }}>
