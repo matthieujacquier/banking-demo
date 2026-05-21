@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import DYContext from "@/components/DYContext";
+import { fireLoginEvent } from "@/lib/dy-script";
 
 const DEMO_USERS = [
   { email: "john.doe@demo.com", password: "demo1234", name: "John Doe" },
@@ -16,12 +17,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const user = DEMO_USERS.find((u) => u.email === email && u.password === password);
     if (user) {
-      sessionStorage.setItem("nexabank_user", JSON.stringify(user));
-      router.push("/app/dashboard");
+      await fireLoginEvent(user.email);
+      sessionStorage.setItem(
+        "nexabank_user",
+        JSON.stringify({ name: user.name, email: user.email }),
+      );
+      router.push("/app/home");
     } else {
       setError("Invalid credentials. Try john.doe@demo.com / demo1234");
     }

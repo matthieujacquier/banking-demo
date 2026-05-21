@@ -3,5 +3,5 @@ import { proxyToDY } from "@/lib/dy-proxy";
 import { DY_ENDPOINTS } from "@/lib/dy-config";
 
 export async function POST(req: NextRequest) {
-  return proxyToDY(DY_ENDPOINTS.choose, await req.json());
+  return proxyToDY(DY_ENDPOINTS.event, await req.json());
 }

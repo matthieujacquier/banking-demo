@@ -45,3 +45,51 @@ body {
 .savings-slide-2 {
   animation-delay: -7s;
 }
+
+/* ── DY API Inspector animations ───────────────────────────────────
+   Pure-CSS, no animation library. Used by the slide-in inspector panel
+   and the per-call cards. */
+
+/* New call cards slide down + fade in. */
+@keyframes dy-card-in {
+  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.dy-card-in {
+  animation: dy-card-in 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Pending status dot pulse. */
+@keyframes dy-status-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+.dy-pulse {
+  animation: dy-status-pulse 1s ease-in-out infinite;
+}
+
+/* A signal dot that flies from the phone toward the panel when a call fires. */
+@keyframes dy-signal-fly {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.5); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(150px, 0) scale(1.1); }
+}
+.dy-signal {
+  animation: dy-signal-fly 0.8s ease-out forwards;
+}
+
+/* Request ⇄ response 3D flip. */
+.dy-flip {
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dy-flip-back {
+  transform: rotateY(180deg);
+}
+.dy-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.dy-face-back {
+  transform: rotateY(180deg);
+}

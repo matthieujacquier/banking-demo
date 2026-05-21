@@ -957,7 +957,7 @@ export default function HomePage() {
                 </ul>
 
                 <Link
-                  href="/login"
+                  href={`/signup?product=${plan.sku}`}
                   className="block text-center bg-[#0B0D12] text-white py-3 rounded-full font-bold text-sm hover:bg-[#1A1F2C] transition-colors cursor-pointer"
                 >
                   Apply Now
