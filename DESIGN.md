@@ -59,16 +59,38 @@ Revolut feels like **modern finance with a premium digital edge**. The system is
 | `--revolut-danger` | `#D14343` | Error or fraud alert |
 | `--revolut-focus` | `#9FB9FF` | Focus ring tint |
 
+### Section Accent Palette
+
+Each top-level product section has its own accent, applied inline via the `heroSections[i].accent` prop in `app/page.tsx` (not exposed as a CSS custom property).
+
+| Category | Hex |
+|----------|-----|
+| Credit Cards | `#0891B2` |
+| Loans | `#2563FF` |
+| Savings | `#16A34A` |
+| Investments | `#7C3AED` |
+| Insurance | `#EA580C` |
+| Crypto | `#F59E0B` |
+| Cashback | `#EC4899` |
+| Private Banking | `#B45309` |
+
 ---
 
 ## 3. Typography Rules
 
 ### Font Stack
 
+Fonts are loaded via `next/font/google` in `app/layout.tsx`:
+
+- **Body:** `Inter` — applied on `<body>` via `inter.className`
+- **Display:** `Outfit` weight 800 — exposed as CSS variable `--font-outfit`, used for hero and section headings
+
 ```css
---font-display: "Aeonik", "Helvetica Neue", Arial, sans-serif;
---font-sans: "Aeonik", system-ui, -apple-system, sans-serif;
---font-mono: "SF Mono", "Roboto Mono", Menlo, monospace;
+/* Body — default on <body> */
+font-family: "Inter", system-ui, -apple-system, sans-serif;
+
+/* Display — applied where --font-outfit is referenced */
+font-family: var(--font-outfit), "Inter", system-ui, sans-serif;
 ```
 
 ### Type Scale
@@ -90,6 +112,8 @@ Revolut typography should feel **precise, modern, and premium-digital**. Headlin
 ---
 
 ## 4. Component Stylings
+
+> The snippets below describe the **target visual** for each primitive. In code, components are composed with Tailwind utilities inline — there are no shared CSS class definitions for `.button-primary`, `.product-card`, etc. Treat this section as a reference for what those utility combinations should add up to.
 
 ### Buttons
 
@@ -160,6 +184,8 @@ Revolut typography should feel **precise, modern, and premium-digital**. Headlin
 
 ### Spacing Scale
 
+> Spacing rhythm guidance — these values describe the intended rhythm. They are **not** defined as CSS custom properties or a Tailwind theme; in code, use Tailwind utilities (`p-4`, `gap-6`, `py-16`, etc.) that map to the same values.
+
 | Token | Value | Usage |
 |-------|-------|-------|
 | `--space-2` | `4px` | Tight alignment |
@@ -222,11 +248,13 @@ Revolut uses **soft premium-product elevation**. Surfaces lift cleanly, while co
 
 ### Breakpoints
 
+Target breakpoints — no custom breakpoint config exists in code; these map to Tailwind v4 defaults (`md` = 768px, `lg` = 1024px).
+
 | Breakpoint | Width | Behavior |
 |------------|-------|----------|
 | Mobile | `< 768px` | Stacked app proofs, simplified feature clusters, full-width CTAs |
-| Tablet | `768px - 1023px` | Two-column product and proof groupings |
-| Desktop | `1024px+` | Wide app storytelling, dark-light section rhythm, multi-card layouts |
+| Tablet (`md`) | `768px - 1023px` | Two-column product and proof groupings |
+| Desktop (`lg`) | `1024px+` | Wide app storytelling, dark-light section rhythm, multi-card layouts |
 
 ### Responsive Rules
 - Keep the app screens legible rather than shrinking them too aggressively
@@ -253,3 +281,41 @@ Design this like Revolut's current public website:
 - premium digital-finance feel with strong contrast and clean hierarchy
 - fast, mobile-first, multi-currency product energy
 ```
+
+---
+
+## 10. Animations
+
+Defined in `app/globals.css`.
+
+### `savings-bg-fade`
+14s loop used for the Savings hero background crossfade. Two slides (`.savings-slide` and `.savings-slide-2`) animate the same keyframe; the second slide uses `animation-delay: -7s` so the pair alternates cleanly.
+
+```css
+@keyframes savings-bg-fade {
+  0%, 43%   { opacity: 1; }
+  50%, 93%  { opacity: 0; }
+  100%      { opacity: 1; }
+}
+```
+
+Cycle: ~6s on → ~1s crossfade → ~6s on → ~1s crossfade.
+
+---
+
+## 11. Personas
+
+Eight customer personas, derived from the `life_stage` field in `nexabank_product_feed.csv`. Each homepage section in `app/page.tsx` targets one or more of these personas through its headline and copy.
+
+| Persona | Snapshot |
+|---------|----------|
+| `student` | First account, low fees, basic spend & save |
+| `young_professional` | Salary banking, starter credit, beginner investing |
+| `family` | Joint accounts, mortgages, insurance, kids' savings |
+| `pre_retirement` | Wealth preservation, retirement planning, conservative investing |
+| `hnw` | High-net-worth — private banking, concierge, premium cards |
+| `crypto` | Digital-asset products, crypto-linked cards |
+| `business` | Business banking, lending, payments |
+| `kids_teens` | Kids/teen accounts and parental-controlled cards |
+
+The canonical persona-to-section mapping is encoded in the `heroSections` array in `app/page.tsx` — it is **not** duplicated here to avoid drift. Update copy there, not in this table.
