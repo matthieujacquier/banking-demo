@@ -167,7 +167,7 @@ export default function Navbar() {
             Sign in
           </Link>
           <Link
-            href="/login"
+            href="/products/credit-cards"
             className="bg-white text-[#0B0D12] px-4 py-2 rounded-full text-sm font-bold hover:bg-[#F6F7FB] transition-colors"
           >
             Open account

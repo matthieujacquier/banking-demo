@@ -43,8 +43,8 @@ function SignupFlow() {
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
-    name: "Alex Morgan",
-    email: "alex.morgan@demo.com",
+    name: "Matthieu Jacquier",
+    email: "matthieu.jacquier@mastercard.com",
     dob: "1992-04-18",
     address: "Rue de la Loi 42, 1000 Brussels",
     idType: "Passport",

@@ -81,7 +81,7 @@ body {
 /* Request ⇄ response 3D flip. */
 .dy-flip {
   transform-style: preserve-3d;
-  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .dy-flip-back {
   transform: rotateY(180deg);
@@ -92,4 +92,23 @@ body {
 }
 .dy-face-back {
   transform: rotateY(180deg);
+}
+
+/* Interactive elements should show a pointer cursor. */
+button:not(:disabled),
+[role="button"] {
+  cursor: pointer;
+}
+
+/* Respect the user's reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+  .savings-slide,
+  .dy-card-in,
+  .dy-pulse,
+  .dy-signal {
+    animation: none !important;
+  }
+  .dy-flip {
+    transition: none;
+  }
 }

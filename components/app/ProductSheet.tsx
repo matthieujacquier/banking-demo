@@ -33,7 +33,11 @@ export default function ProductSheet({ product }: { product: Product }) {
   const accent = CATEGORY_ACCENT[product.category];
   const [step, setStep] = useState<"detail" | "form" | "done">("detail");
   const [profile] = useState(() => {
-    const base = { name: "John Doe", email: "john.doe@demo.com", phone: "+32 470 12 34 56" };
+    const base = {
+      name: "Matthieu Jacquier",
+      email: "matthieu.jacquier@mastercard.com",
+      phone: "+32 470 12 34 56",
+    };
     try {
       const u = JSON.parse(sessionStorage.getItem("nexabank_user") ?? "{}") as {
         name?: string;

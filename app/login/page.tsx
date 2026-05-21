@@ -7,7 +7,7 @@ import DYContext from "@/components/DYContext";
 import { fireLoginEvent } from "@/lib/dy-script";
 
 const DEMO_USERS = [
-  { email: "john.doe@demo.com", password: "demo1234", name: "John Doe" },
+  { email: "matthieu.jacquier@mastercard.com", password: "demo1234", name: "Matthieu Jacquier" },
   { email: "jane.smith@demo.com", password: "demo1234", name: "Jane Smith" },
 ];
 
@@ -28,7 +28,7 @@ export default function LoginPage() {
       );
       router.push("/app/home");
     } else {
-      setError("Invalid credentials. Try john.doe@demo.com / demo1234");
+      setError("Invalid credentials. Try matthieu.jacquier@mastercard.com / demo1234");
     }
   }
 

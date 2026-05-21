@@ -24,7 +24,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white border-t border-[#D8E0ED] px-2 py-2.5 flex justify-around flex-shrink-0">
+    <nav className="bg-white border-t border-[#D8E0ED] px-2 pt-2 pb-6 flex justify-around flex-shrink-0">
       {TABS.map((tab) => {
         const active = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
         return (

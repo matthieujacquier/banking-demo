@@ -37,10 +37,14 @@ interface DYActivityValue {
   calls: ApiCall[];
   panelOpen: boolean;
   unread: number;
+  panelWidth: number;
+  resizing: boolean;
   record(input: RecordInput): string;
   update(id: string, patch: Partial<ApiCall>): void;
   clear(): void;
   togglePanel(): void;
+  setPanelWidth(width: number): void;
+  setResizing(resizing: boolean): void;
 }
 
 const Ctx = createContext<DYActivityValue | null>(null);
@@ -51,6 +55,8 @@ export function DYActivityProvider({ children }: { children: ReactNode }) {
   const [calls, setCalls] = useState<ApiCall[]>([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [unread, setUnread] = useState(0);
+  const [panelWidth, setPanelWidth] = useState(400);
+  const [resizing, setResizing] = useState(false);
   const panelOpenRef = useRef(false);
 
   const record = useCallback((input: RecordInput): string => {
@@ -89,7 +95,21 @@ export function DYActivityProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Ctx.Provider value={{ calls, panelOpen, unread, record, update, clear, togglePanel }}>
+    <Ctx.Provider
+      value={{
+        calls,
+        panelOpen,
+        unread,
+        panelWidth,
+        resizing,
+        record,
+        update,
+        clear,
+        togglePanel,
+        setPanelWidth,
+        setResizing,
+      }}
+    >
       {children}
     </Ctx.Provider>
   );

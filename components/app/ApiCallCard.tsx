@@ -78,11 +78,11 @@ export default function ApiCallCard({ call }: { call: ApiCall }) {
           {call.title.replace(/^(Event|Choose|Pageview|Engagement) · /, "")}
         </span>
         <StatusDot call={call} />
-        <span className="text-white/40 text-[10px]">{open ? "▲" : "▼"}</span>
+        <span className="text-white/55 text-[10px]">{open ? "▲" : "▼"}</span>
       </button>
 
       {/* Meta line */}
-      <div className="px-3 pb-2 flex items-center gap-2 text-[10px] text-white/40">
+      <div className="px-3 pb-2 flex items-center gap-2 text-[10px] text-white/55">
         <span className="font-mono">{call.method}</span>
         <span className="font-mono truncate flex-1 min-w-0">{call.url}</span>
         {call.status != null && <span className="font-mono">{call.status}</span>}
@@ -116,7 +116,7 @@ export default function ApiCallCard({ call }: { call: ApiCall }) {
               </div>
               <div className="dy-face dy-face-back absolute inset-0 overflow-auto rounded-xl bg-[#0B0D12] border border-white/10 p-2.5">
                 {call.state === "pending" ? (
-                  <p className="text-white/40 text-[11px] font-mono">Awaiting response…</p>
+                  <p className="text-white/55 text-[11px] font-mono">Awaiting response…</p>
                 ) : (
                   <JsonView value={call.responseBody} />
                 )}
