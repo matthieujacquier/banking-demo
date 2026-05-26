@@ -180,6 +180,9 @@ export function useDY() {
           durationMs,
         }),
 
+      event: (title: string, name: string, properties: Record<string, unknown>) =>
+        fireEvent(title, name, properties),
+
       reportEngagement: (
         type: "IMP" | "CLICK" | "SLOT_IMP" | "SLOT_CLICK",
         ids: { decisionId?: string; slotId?: string },

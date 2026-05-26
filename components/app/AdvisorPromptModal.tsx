@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useDY } from "@/lib/dy-client";
 import { DY_SELECTORS } from "@/lib/dy-config";
 
@@ -9,7 +10,7 @@ import { DY_SELECTORS } from "@/lib/dy-config";
 //   "title": "Talk to an advisor",
 //   "body":  "Looks like your portfolio is growing — want a quick check-in?",
 //   "ctaLabel": "Book a call",
-//   "ctaHref":  "/contact"
+//   "ctaHref":  "/app/contact"
 // }
 interface AdvisorContent {
   title?: string;
@@ -100,15 +101,15 @@ export default function AdvisorPromptModal() {
         {content.body && (
           <p className="text-sm text-[#6B7280] mt-1.5 leading-relaxed">{content.body}</p>
         )}
-        <a
-          href={content.ctaHref ?? "/contact"}
+        <Link
+          href={content.ctaHref ?? "/app/contact"}
           onClick={() => {
             if (decisionId) dy.reportEngagement("CLICK", { decisionId });
           }}
           className="mt-5 block w-full bg-[#0B0D12] text-white text-center py-3 rounded-full text-sm font-bold hover:bg-[#1A1F2C] transition-colors"
         >
           {content.ctaLabel ?? "Book a call"}
-        </a>
+        </Link>
         <p className="text-center text-[#6B7280] text-[11px] mt-2.5">
           Served by Dynamic Yield · {DY_SELECTORS.investAdvisorPrompt}
         </p>
