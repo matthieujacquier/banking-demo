@@ -106,21 +106,23 @@ export default function LoanAmountCalculator({
   }
 
   // Debounced custom DY event (~400ms after the user stops dragging the slider).
-  // Sends the latest tier as a property so a DY audience can target on it
-  // (e.g. tier === "hnw") without needing a custom evaluator.
+  // True DY custom event: name + flat primitive properties, no dyType, no nesting.
+  // Flat snake_case keys so DY audience builder can target on them directly
+  // (e.g. loan_tier equals "hnw").
   useEffect(() => {
     const id = window.setTimeout(() => {
       callDy("event", {
-        name: "Real Estate Loan Calculation",
+        name: "Real Estate Loan Interest",
         properties: {
-          sku: productSku,
-          amount,
-          termMonths,
-          tier,
-          monthlyPayment: Math.round(monthlyPayment),
+          loan_sku: productSku,
+          loan_amount: amount,
+          loan_term: termMonths,
+          loan_tier: tier,
+          loan_monthly_payment: Math.round(monthlyPayment),
+          loan_type: "real_estate",
         },
       });
-      publishState({ event: "real_estate_loan_calculation" });
+      publishState({ event: "real_estate_loan_interest" });
     }, 400);
     return () => window.clearTimeout(id);
     // publishState is intentionally not in deps — its identity changes every
@@ -140,12 +142,13 @@ export default function LoanAmountCalculator({
     callDy("event", {
       name: "Real Estate Loan Quote Requested",
       properties: {
-        sku: productSku,
-        email,
-        amount,
-        termMonths,
-        tier,
-        monthlyPayment: Math.round(monthlyPayment),
+        loan_sku: productSku,
+        loan_email: email,
+        loan_amount: amount,
+        loan_term: termMonths,
+        loan_tier: tier,
+        loan_monthly_payment: Math.round(monthlyPayment),
+        loan_type: "real_estate",
       },
     });
     publishState({ event: "real_estate_loan_quote_requested", email });
