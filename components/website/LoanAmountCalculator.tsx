@@ -140,14 +140,10 @@ export default function LoanAmountCalculator({
     setSubmitState("submitting");
     callDy("identify", { cuid: email, cuidType: "email" });
     callDy("event", {
-      name: "Real Estate Loan Quote Requested",
+      name: "LoanQuoteRequested",
       properties: {
         loan_sku: productSku,
-        loan_email: email,
-        loan_amount: amount,
-        loan_term: termMonths,
         loan_tier: tier,
-        loan_monthly_payment: Math.round(monthlyPayment),
         loan_type: "real_estate",
       },
     });
