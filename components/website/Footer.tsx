@@ -1,3 +1,15 @@
+"use client";
+
+function resetDemo() {
+  try {
+    localStorage.clear();
+    sessionStorage.clear();
+  } catch {
+    /* ignore */
+  }
+  window.location.href = "/";
+}
+
 export default function Footer() {
   return (
     <footer className="bg-[#0B0D12] text-[#6B7280] text-sm">
@@ -29,8 +41,15 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 text-center py-5 text-xs">
-        © {new Date().getFullYear()} NexaBank. Demo purposes only.
+      <div className="border-t border-white/10 py-5 text-xs flex items-center justify-between max-w-7xl mx-auto px-6">
+        <span>© {new Date().getFullYear()} NexaBank. Demo purposes only.</span>
+        <button
+          onClick={resetDemo}
+          className="text-white/20 hover:text-white/60 transition-colors text-[10px] tracking-wide"
+          title="Clear localStorage + sessionStorage and reload"
+        >
+          reset demo
+        </button>
       </div>
     </footer>
   );
