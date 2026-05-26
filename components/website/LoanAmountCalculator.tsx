@@ -112,17 +112,14 @@ export default function LoanAmountCalculator({
   useEffect(() => {
     const id = window.setTimeout(() => {
       callDy("event", {
-        name: "Real Estate Loan Interest",
+        name: "LoanQuoteRequested",
         properties: {
           loan_sku: productSku,
-          loan_amount: amount,
-          loan_term: termMonths,
           loan_tier: tier,
-          loan_monthly_payment: Math.round(monthlyPayment),
           loan_type: "real_estate",
         },
       });
-      publishState({ event: "real_estate_loan_interest" });
+      publishState({ event: "loan_quote_requested" });
     }, 400);
     return () => window.clearTimeout(id);
     // publishState is intentionally not in deps — its identity changes every
