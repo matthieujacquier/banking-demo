@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type Tier = "entry" | "mid" | "upper-mid" | "hnw";
 
-type DyApi = (action: "engagement" | "identify", payload: Record<string, unknown>) => void;
+type DyApi = (action: "event" | "engagement" | "identify", payload: Record<string, unknown>) => void;
 
 function getDyApi(): DyApi | undefined {
   if (typeof window === "undefined") return undefined;
@@ -64,7 +64,7 @@ export default function LoanAmountCalculator({
   );
 
   const warnedRef = useRef(false);
-  function callDy(action: "engagement" | "identify", payload: Record<string, unknown>): boolean {
+  function callDy(action: "event" | "engagement" | "identify", payload: Record<string, unknown>): boolean {
     const api = getDyApi();
     if (!api) {
       if (!warnedRef.current) {
@@ -105,13 +105,14 @@ export default function LoanAmountCalculator({
     w.dataLayer.push({ event: extra?.event ?? "real_estate_loan_calculation", ...payload });
   }
 
-  // Debounced slider engagement signal (~400ms after the user stops dragging).
+  // Debounced custom DY event (~400ms after the user stops dragging the slider).
+  // Sends the latest tier as a property so a DY audience can target on it
+  // (e.g. tier === "hnw") without needing a custom evaluator.
   useEffect(() => {
     const id = window.setTimeout(() => {
-      callDy("engagement", {
-        type: "CUSTOM",
+      callDy("event", {
+        name: "Real Estate Loan Calculation",
         properties: {
-          name: "real_estate_loan_calculation",
           sku: productSku,
           amount,
           termMonths,
@@ -136,10 +137,9 @@ export default function LoanAmountCalculator({
     }
     setSubmitState("submitting");
     callDy("identify", { cuid: email, cuidType: "email" });
-    callDy("engagement", {
-      type: "CUSTOM",
+    callDy("event", {
+      name: "Real Estate Loan Quote Requested",
       properties: {
-        name: "real_estate_loan_quote_requested",
         sku: productSku,
         email,
         amount,
