@@ -21,13 +21,19 @@ export function loadIdentity(): DYIdentity {
   } catch {
     identity = {};
   }
-  // DY rejects requests with an empty user.dyid. Mint a client-side UUID on
-  // first load so the very first call has a valid identity; the server-issued
-  // _dyid_server from response cookies overrides it once received.
+  // DY rejects requests with an empty user.dyid or session.dy. Mint both
+  // client-side on first load; server-issued _dyid_server / _dyjsession from
+  // response cookies override them once received.
+  let dirty = false;
   if (!identity.dyid) {
     identity.dyid = crypto.randomUUID();
-    localStorage.setItem(KEY, JSON.stringify(identity));
+    dirty = true;
   }
+  if (!identity.session) {
+    identity.session = crypto.randomUUID();
+    dirty = true;
+  }
+  if (dirty) localStorage.setItem(KEY, JSON.stringify(identity));
   return identity;
 }
 
