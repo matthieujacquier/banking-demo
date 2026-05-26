@@ -9,6 +9,7 @@ const API = {
   pageview: "/api/dy/pageview",
   event: "/api/dy/event",
   choose: "/api/dy/choose",
+  engagement: "/api/dy/engagement",
 };
 
 export interface PageContext {
@@ -177,6 +178,16 @@ export function useDY() {
         fireEvent("Time on Category", "Time on Category", {
           category,
           durationMs,
+        }),
+
+      reportEngagement: (
+        type: "IMP" | "CLICK" | "SLOT_IMP" | "SLOT_CLICK",
+        ids: { decisionId?: string; slotId?: string },
+      ) =>
+        call("engagement", `Engagement · ${type}`, API.engagement, {
+          user: user(),
+          session: session(),
+          engagements: [{ type, ...ids }],
         }),
     };
   }, [call]);

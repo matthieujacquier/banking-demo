@@ -25,6 +25,7 @@ interface Variation {
 interface Choice {
   name?: string;
   type?: string;
+  decisionId?: string;
   variations?: Variation[];
 }
 
@@ -32,19 +33,20 @@ interface ChooseResponse {
   choices?: Choice[];
 }
 
-function extractContent(res: unknown): AdvisorContent | null {
+function extractDecision(res: unknown): { content: AdvisorContent; decisionId?: string } | null {
   const choices = (res as ChooseResponse | null)?.choices;
   if (!Array.isArray(choices)) return null;
   const choice = choices.find((c) => c.name === DY_SELECTORS.investAdvisorPrompt);
   if (!choice || choice.type !== "DECISION") return null;
   const payload = choice.variations?.[0]?.payload;
-  if (payload?.type !== "CUSTOM_JSON") return null;
-  return payload.data ?? null;
+  if (payload?.type !== "CUSTOM_JSON" || !payload.data) return null;
+  return { content: payload.data, decisionId: choice.decisionId };
 }
 
 export default function AdvisorPromptModal() {
   const dy = useDY();
   const [content, setContent] = useState<AdvisorContent | null>(null);
+  const [decisionId, setDecisionId] = useState<string | undefined>();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -55,10 +57,15 @@ export default function AdvisorPromptModal() {
         data: ["INVESTMENTS"],
       });
       if (cancelled) return;
-      const data = extractContent(res);
-      if (data) {
-        setContent(data);
+      const decision = extractDecision(res);
+      if (decision) {
+        setContent(decision.content);
+        setDecisionId(decision.decisionId);
         setOpen(true);
+        // Variation impression — DY uses this to compute exposure / conversion.
+        if (decision.decisionId) {
+          dy.reportEngagement("IMP", { decisionId: decision.decisionId });
+        }
       }
     })();
     return () => {
@@ -95,6 +102,9 @@ export default function AdvisorPromptModal() {
         )}
         <a
           href={content.ctaHref ?? "/contact"}
+          onClick={() => {
+            if (decisionId) dy.reportEngagement("CLICK", { decisionId });
+          }}
           className="mt-5 block w-full bg-[#0B0D12] text-white text-center py-3 rounded-full text-sm font-bold hover:bg-[#1A1F2C] transition-colors"
         >
           {content.ctaLabel ?? "Book a call"}
