@@ -84,15 +84,6 @@ const megaColumns = [
         { label: "Rewards Programme", href: "/products/cashback/rewards-programme" },
       ],
     },
-    {
-      heading: "Private Banking",
-      href: "/products/private-banking",
-      items: [
-        { label: "Relationship Manager", href: "/products/private-banking/relationship-manager" },
-        { label: "Wealth Planning", href: "/products/private-banking/wealth-planning" },
-        { label: "Credit Line", href: "/products/private-banking/credit-line" },
-      ],
-    },
   ],
 ];
 
@@ -108,10 +99,10 @@ export default function Navbar() {
           NEXA
         </Link>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/65 h-16">
+        <div id="dy-nav-links" className="hidden md:flex items-center gap-8 text-sm font-medium text-white/65 h-16">
 
           {/* Products mega-menu */}
-          <div className="group relative h-full flex items-center">
+          <div id="dy-nav-products" className="group relative h-full flex items-center">
             <span className="flex items-center gap-1 cursor-default hover:text-white transition-colors select-none">
               Products
               <span className="transition-transform duration-200 group-hover:rotate-180 flex items-center">
