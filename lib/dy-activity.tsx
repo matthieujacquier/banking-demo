@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 
-export type CallKind = "choose" | "pageview" | "event" | "engagement";
+export type CallKind = "pageview" | "event";
 export type CallState = "pending" | "success" | "error";
 
 export interface ApiCall {

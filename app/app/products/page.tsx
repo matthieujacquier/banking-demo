@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useDY, useDYPageview } from "@/lib/dy-client";
+import { useEffect, useRef, useState } from "react";
+import { useDY } from "@/lib/dy-client";
 import { CATEGORIES, PRODUCTS, type ProductCategory } from "@/lib/products";
 import ProductCard from "@/components/app/ProductCard";
-import RecommendationStrip from "@/components/app/RecommendationStrip";
-
-const PRODUCTS_FALLBACK = ["LOAN-STU-001", "CRYPTO-PORT-001", "SAV-INST-001"];
 
 type Filter = ProductCategory | "All";
+
+const DWELL_EVENT_MIN_MS = 3000;
+const DWELL_AFFINITY_MIN_MS = 15000;
 
 const SERVICES: { label: string; accent: string; category?: ProductCategory }[] = [
   { label: "Insurance", accent: "#EA580C", category: "Insurance" },
@@ -18,11 +18,49 @@ const SERVICES: { label: string; accent: string; category?: ProductCategory }[] 
 ];
 
 export default function ProductsPage() {
-  useDYPageview("CATEGORY", ["PRODUCTS"]);
   const dy = useDY();
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [filter, setFilter] = useState<Filter>("All");
+
+  const dwellRef = useRef<{ category: Filter; startedAt: number } | null>(null);
+
+  // Fire CATEGORY pageview on filter change + close out the previous filter's
+  // dwell as a "Time on Category" event (and inform-affinity past a threshold).
+  useEffect(() => {
+    const prev = dwellRef.current;
+    if (prev && prev.category !== "All") {
+      const durationMs = Math.round(performance.now() - prev.startedAt);
+      if (durationMs >= DWELL_EVENT_MIN_MS) {
+        dy.timeOnCategory(prev.category, durationMs);
+        if (durationMs >= DWELL_AFFINITY_MIN_MS) {
+          dy.informAffinity([prev.category]);
+        }
+      }
+    }
+    dwellRef.current = { category: filter, startedAt: performance.now() };
+
+    const data = filter === "All" ? ["PRODUCTS"] : [filter];
+    dy.pageview({ type: "CATEGORY", data });
+    // dy is a stable memoised object; only react to filter changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter]);
+
+  // On unmount, flush the active filter's dwell.
+  useEffect(() => {
+    return () => {
+      const prev = dwellRef.current;
+      if (!prev || prev.category === "All") return;
+      const durationMs = Math.round(performance.now() - prev.startedAt);
+      if (durationMs >= DWELL_EVENT_MIN_MS) {
+        dy.timeOnCategory(prev.category, durationMs);
+        if (durationMs >= DWELL_AFFINITY_MIN_MS) {
+          dy.informAffinity([prev.category]);
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const visible = PRODUCTS.filter((p) => {
     const matchesCategory = filter === "All" || p.category === filter;
@@ -71,13 +109,6 @@ export default function ProductsPage() {
           )}
         </div>
       </form>
-
-      {/* Recommendations */}
-      <RecommendationStrip
-        selector="App Products Recommendations"
-        pageType="CATEGORY"
-        fallbackSkus={PRODUCTS_FALLBACK}
-      />
 
       {/* Services */}
       <div>

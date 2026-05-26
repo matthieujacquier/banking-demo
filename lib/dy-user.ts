@@ -15,11 +15,20 @@ const KEY = "nexabank_dy_identity";
 
 export function loadIdentity(): DYIdentity {
   if (typeof window === "undefined") return {};
+  let identity: DYIdentity;
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "{}") as DYIdentity;
+    identity = JSON.parse(localStorage.getItem(KEY) ?? "{}") as DYIdentity;
   } catch {
-    return {};
+    identity = {};
   }
+  // DY rejects requests with an empty user.dyid. Mint a client-side UUID on
+  // first load so the very first call has a valid identity; the server-issued
+  // _dyid_server from response cookies overrides it once received.
+  if (!identity.dyid) {
+    identity.dyid = crypto.randomUUID();
+    localStorage.setItem(KEY, JSON.stringify(identity));
+  }
+  return identity;
 }
 
 export function saveIdentity(patch: Partial<DYIdentity>): DYIdentity {

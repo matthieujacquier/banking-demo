@@ -11,10 +11,7 @@ import {
   formatEUR,
   totalBalance,
 } from "@/lib/app-data";
-import RecommendationStrip from "@/components/app/RecommendationStrip";
 import TransactionRow from "@/components/app/TransactionRow";
-
-const HOME_FALLBACK = ["CARD-NOM-001", "SAV-TERM-001", "INV-ETF-001", "INS-TRAV-001"];
 
 const QUICK_ACTIONS = [
   { label: "Send", icon: "↑" },
@@ -85,13 +82,6 @@ export default function HomePage() {
           </button>
         ))}
       </div>
-
-      {/* DY recommendations */}
-      <RecommendationStrip
-        selector="App Home Recommendations"
-        pageType="HOMEPAGE"
-        fallbackSkus={HOME_FALLBACK}
-      />
 
       {/* Recent transactions */}
       <div>

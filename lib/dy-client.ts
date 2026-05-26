@@ -6,10 +6,8 @@ import { applyCookies, loadIdentity, saveIdentity, sha256Hex } from "./dy-user";
 import { eventValue, type Product } from "./products";
 
 const API = {
-  choose: "/api/dy/choose",
   pageview: "/api/dy/pageview",
   event: "/api/dy/event",
-  engagement: "/api/dy/engagement",
 };
 
 export interface PageContext {
@@ -86,19 +84,6 @@ export function useDY() {
     ) => call("event", `Event · ${title}`, API.event, eventBody([{ name, properties }]));
 
     return {
-      choose: (selectorNames: string[], ctx: PageContext) =>
-        call("choose", `Choose · ${selectorNames.join(", ")}`, API.choose, {
-          user: user(),
-          session: session(),
-          selector: { names: selectorNames },
-          context: { page: page(ctx), device: { type: "DESKTOP" } },
-          options: {
-            isImplicitImpressionMode: true,
-            isImplicitPageview: false,
-            returnAnalyticsMetadata: true,
-          },
-        }),
-
       pageview: (ctx: PageContext) =>
         call("pageview", `Pageview · ${ctx.type}`, API.pageview, {
           user: user(),
@@ -173,14 +158,10 @@ export function useDY() {
           data: [{ attribute: "categories", values: categories }],
         }),
 
-      reportEngagement: (
-        type: "IMP" | "SLOT_IMP" | "SLOT_CLICK" | "CLICK",
-        ids: { decisionId?: string; slotId?: string },
-      ) =>
-        call("engagement", `Engagement · ${type}`, API.engagement, {
-          user: user(),
-          session: session(),
-          engagements: [{ type, ...ids }],
+      timeOnCategory: (category: string, durationMs: number) =>
+        fireEvent("Time on Category", "Time on Category", {
+          category,
+          durationMs,
         }),
     };
   }, [call]);
