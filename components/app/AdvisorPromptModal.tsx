@@ -110,9 +110,6 @@ export default function AdvisorPromptModal() {
         >
           {content.ctaLabel ?? "Book a call"}
         </Link>
-        <p className="text-center text-[#6B7280] text-[11px] mt-2.5">
-          Served by Dynamic Yield · {DY_SELECTORS.investAdvisorPrompt}
-        </p>
       </div>
     </div>
   );
