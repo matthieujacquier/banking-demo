@@ -56,9 +56,14 @@ export function useDY() {
   );
 
   return useMemo(() => {
+    // active_consent_accepted is required for EU-originating traffic — DY
+    // returns 451 (legal/GDPR gate) without it even on a US datacenter.
     const user = () => {
       const id = loadIdentity();
-      return id.dyid ? { dyid: id.dyid, dyid_server: id.dyidServer ?? id.dyid } : {};
+      const base = { active_consent_accepted: true };
+      return id.dyid
+        ? { ...base, dyid: id.dyid, dyid_server: id.dyidServer ?? id.dyid }
+        : base;
     };
     const session = () => {
       const id = loadIdentity();
