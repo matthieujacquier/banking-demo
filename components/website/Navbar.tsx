@@ -84,6 +84,15 @@ const megaColumns = [
         { label: "Rewards Programme", href: "/products/cashback/rewards-programme" },
       ],
     },
+    {
+      heading: "Private Banking",
+      href: "/products/private-banking",
+      items: [
+        { label: "Relationship Manager", href: "/products/private-banking/relationship-manager" },
+        { label: "Wealth Planning", href: "/products/private-banking/wealth-planning" },
+        { label: "Credit Line", href: "/products/private-banking/credit-line" },
+      ],
+    },
   ],
 ];
 
