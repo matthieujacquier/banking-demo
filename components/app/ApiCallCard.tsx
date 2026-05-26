@@ -4,17 +4,13 @@ import { useState } from "react";
 import type { ApiCall, CallKind } from "@/lib/dy-activity";
 
 const KIND_COLOR: Record<CallKind, string> = {
-  choose: "#2563FF",
   pageview: "#64748B",
   event: "#7C3AED",
-  engagement: "#EC4899",
 };
 
 const KIND_LABEL: Record<CallKind, string> = {
-  choose: "CHOOSE",
   pageview: "PAGEVIEW",
   event: "EVENT",
-  engagement: "ENGAGE",
 };
 
 function StatusDot({ call }: { call: ApiCall }) {
