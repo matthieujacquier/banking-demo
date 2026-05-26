@@ -4,6 +4,7 @@ import { useDY, useDYPageview } from "@/lib/dy-client";
 import { HOLDINGS, formatEUR, portfolioValue } from "@/lib/app-data";
 import { getProduct, productsByCategory } from "@/lib/products";
 import { useSheet } from "@/lib/app-sheet";
+import AdvisorPromptModal from "@/components/app/AdvisorPromptModal";
 import ProductCard from "@/components/app/ProductCard";
 
 const TOP_UP = 250;
@@ -19,6 +20,7 @@ export default function InvestmentsPage() {
 
   return (
     <div className="px-5 py-6 space-y-6">
+      <AdvisorPromptModal />
       <h1 className="text-2xl font-bold text-[#0B0D12]" style={{ letterSpacing: "-0.02em" }}>
         Investments
       </h1>

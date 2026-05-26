@@ -6,11 +6,13 @@ import type { ApiCall, CallKind } from "@/lib/dy-activity";
 const KIND_COLOR: Record<CallKind, string> = {
   pageview: "#64748B",
   event: "#7C3AED",
+  choose: "#2563FF",
 };
 
 const KIND_LABEL: Record<CallKind, string> = {
   pageview: "PAGEVIEW",
   event: "EVENT",
+  choose: "CHOOSE",
 };
 
 function StatusDot({ call }: { call: ApiCall }) {
