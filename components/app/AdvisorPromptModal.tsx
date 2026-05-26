@@ -76,6 +76,13 @@ export default function AdvisorPromptModal() {
 
   if (!open || !content) return null;
 
+  // The popup lives inside the app shell — rewrite any non-/app/ path coming
+  // from the DY campaign payload so the CTA always stays inside the phone view.
+  const rawHref = content.ctaHref ?? "/app/contact";
+  const ctaHref = rawHref.startsWith("/") && !rawHref.startsWith("/app/")
+    ? `/app${rawHref}`
+    : rawHref;
+
   return (
     <div className="absolute inset-0 z-40 flex items-end justify-center bg-black/40 backdrop-blur-sm">
       <div
@@ -102,7 +109,7 @@ export default function AdvisorPromptModal() {
           <p className="text-sm text-[#6B7280] mt-1.5 leading-relaxed">{content.body}</p>
         )}
         <Link
-          href={content.ctaHref ?? "/app/contact"}
+          href={ctaHref}
           onClick={() => {
             if (decisionId) dy.reportEngagement("CLICK", { decisionId });
           }}
