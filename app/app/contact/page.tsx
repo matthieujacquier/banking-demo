@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDY, useDYPageview } from "@/lib/dy-client";
+import { readSessionUser } from "@/lib/session-user";
 
 const SLOTS = ["This afternoon", "Tomorrow morning", "Tomorrow afternoon", "Next week"];
 
@@ -11,15 +12,7 @@ function readProfile() {
     name: "Matthieu Jacquier",
     email: "matthieu.jacquier@mastercard.com",
   };
-  try {
-    const u = JSON.parse(sessionStorage.getItem("nexabank_user") ?? "{}") as {
-      name?: string;
-      email?: string;
-    };
-    return { name: u.name ?? fallback.name, email: u.email ?? fallback.email };
-  } catch {
-    return fallback;
-  }
+  return readSessionUser() ?? fallback;
 }
 
 export default function ContactPage() {

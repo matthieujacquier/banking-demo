@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import BottomNav from "./BottomNav";
 import InspectorPanel from "./InspectorPanel";
@@ -11,6 +10,7 @@ import { useDYActivity } from "@/lib/dy-activity";
 import { useDY } from "@/lib/dy-client";
 import { useSheet } from "@/lib/app-sheet";
 import { useMuse } from "@/lib/app-muse";
+import { ensureSessionUser } from "@/lib/session-user";
 
 const emptySubscribe = () => () => {};
 
@@ -65,7 +65,6 @@ function StatusIcons() {
 }
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const { panelOpen, unread, panelWidth, resizing, togglePanel } = useDYActivity();
   const { product: sheetProduct } = useSheet();
   const { isOpen: museOpen, open: openMuse } = useMuse();
@@ -81,30 +80,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!mounted) return;
-    const stored = sessionStorage.getItem("nexabank_user");
-    if (!stored) {
-      router.push("/login");
-      return;
-    }
+    // No login wall: a deep link straight into the app signs in the default
+    // demo customer. Identify fires once per session.
+    const user = ensureSessionUser();
     if (!booted.current) {
       booted.current = true;
-      try {
-        const user = JSON.parse(stored) as { email?: string };
-        if (user.email) dy.identify(user.email);
-      } catch {
-        /* ignore malformed session */
-      }
+      dy.identify(user.email);
     }
-  }, [mounted, router, dy]);
+  }, [mounted, dy]);
 
   useEffect(() => {
     if (screenRef.current) screenRef.current.scrollTop = 0;
   }, [sheetProduct, museOpen]);
 
   if (!mounted) return <div className="fixed inset-0 bg-[#0B0D12]" />;
-
-  const stored = sessionStorage.getItem("nexabank_user");
-  if (!stored) return <div className="fixed inset-0 bg-[#0B0D12]" />;
 
   const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 

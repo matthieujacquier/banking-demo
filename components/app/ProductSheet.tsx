@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CATEGORY_ACCENT, type Product } from "@/lib/products";
 import { useSheet } from "@/lib/app-sheet";
 import { useDY } from "@/lib/dy-client";
+import { readSessionUser } from "@/lib/session-user";
 
 function formatAmount(n: number): string {
   return new Intl.NumberFormat("en-IE", {
@@ -38,15 +39,8 @@ export default function ProductSheet({ product }: { product: Product }) {
       email: "matthieu.jacquier@mastercard.com",
       phone: "+32 470 12 34 56",
     };
-    try {
-      const u = JSON.parse(sessionStorage.getItem("nexabank_user") ?? "{}") as {
-        name?: string;
-        email?: string;
-      };
-      return { ...base, name: u.name ?? base.name, email: u.email ?? base.email };
-    } catch {
-      return base;
-    }
+    const u = readSessionUser();
+    return u ? { ...base, name: u.name, email: u.email } : base;
   });
 
   const stats = buildStats(product);

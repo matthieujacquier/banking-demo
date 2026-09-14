@@ -212,12 +212,22 @@ export function useDY() {
           keywords,
         }),
 
-      informAffinity: (categories: string[]) =>
-        fireEvent("Inform Affinity", "Inform Affinity", {
+      // Attribute names must match feed columns (categories, goals, personas…);
+      // DY accepts at most 10 values per attribute.
+      informAffinity: (input: string[] | { attribute: string; values: string[] }[]) => {
+        const data = (
+          input.length > 0 && typeof input[0] === "string"
+            ? [{ attribute: "categories", values: input as string[] }]
+            : (input as { attribute: string; values: string[] }[])
+        )
+          .filter((d) => d.values.length > 0)
+          .map((d) => ({ attribute: d.attribute, values: d.values.slice(0, 10) }));
+        return fireEvent("Inform Affinity", "Inform Affinity", {
           dyType: "inform-affinity-v1",
           source: "app-preferences",
-          data: [{ attribute: "categories", values: categories }],
-        }),
+          data,
+        });
+      },
 
       timeOnCategory: (category: string, durationMs: number) =>
         fireEvent("Time on Category", "Time on Category", {

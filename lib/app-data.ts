@@ -1,6 +1,10 @@
 // Mock banking state for the logged-in app demo. Not persisted — purely
 // illustrative content for the Classic Banking screens.
 
+import { getProduct } from "./products";
+
+export { formatEUR } from "./money";
+
 export interface Account {
   id: string;
   name: string;
@@ -62,7 +66,7 @@ export const CARD: BankCard = {
   name: "NexaNomad Card",
   last4: "4827",
   expiry: "08/29",
-  gradient: "linear-gradient(135deg, #164e63 0%, #0B0D12 100%)",
+  gradient: getProduct("CARD-NOM-001")?.cardGradient ?? "linear-gradient(135deg, #164e63 0%, #0B0D12 100%)",
 };
 
 export const MONTH_INCOME = 3700.0;
@@ -102,6 +106,3 @@ export function portfolioValue(): number {
   return HOLDINGS.reduce((sum, h) => sum + h.value, 0);
 }
 
-export function formatEUR(amount: number): string {
-  return new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR" }).format(amount);
-}

@@ -5,31 +5,24 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import DYContext from "@/components/DYContext";
 import { fireLoginEvent } from "@/lib/dy-script";
+import { DEMO_USERS, userFromEmail, writeSessionUser } from "@/lib/session-user";
 
-const DEMO_USERS = [
-  { email: "matthieu.jacquier@mastercard.com", password: "demo1234", name: "Matthieu Jacquier" },
-  { email: "jane.smith@demo.com", password: "demo1234", name: "Jane Smith" },
-];
-
+// Demo sign-in: no credentials are checked. Any email signs you in (and
+// becomes the identity DY sees, as a hashed cuid); an empty form signs in the
+// default demo customer.
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const user = DEMO_USERS.find((u) => u.email === email && u.password === password);
-    if (user) {
-      await fireLoginEvent(user.email);
-      sessionStorage.setItem(
-        "nexabank_user",
-        JSON.stringify({ name: user.name, email: user.email }),
-      );
-      router.push("/app/home");
-    } else {
-      setError("Invalid credentials. Try matthieu.jacquier@mastercard.com / demo1234");
-    }
+  async function signIn(address: string) {
+    if (busy) return;
+    setBusy(true);
+    const user = userFromEmail(address);
+    await fireLoginEvent(user.email);
+    writeSessionUser(user);
+    router.push("/app/home");
   }
 
   return (
@@ -40,10 +33,18 @@ export default function LoginPage() {
       </Link>
 
       <div className="bg-white rounded-3xl p-8 w-full max-w-sm" style={{ boxShadow: "0 16px 34px rgba(11,13,18,0.2)" }}>
-        <h1 className="text-2xl font-bold text-[#0B0D12] mb-1" style={{ letterSpacing: "-0.01em" }}>Sign in</h1>
+        <h1 className="text-2xl font-bold text-[#0B0D12] mb-1" style={{ letterSpacing: "-0.01em" }}>
+          Sign in
+        </h1>
         <p className="text-[#6B7280] text-sm mb-7">Welcome back</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            signIn(email);
+          }}
+          className="space-y-4"
+        >
           <div>
             <label className="block text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-1.5">Email</label>
             <input
@@ -52,7 +53,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-[#D8E0ED] rounded-2xl px-4 py-3 text-sm text-[#1F2937] focus:outline-none focus:border-[#2563FF] focus:shadow-[0_0_0_4px_rgba(159,185,255,0.35)] transition-all"
               placeholder="your@email.com"
-              required
+              autoComplete="email"
             />
           </div>
           <div>
@@ -63,21 +64,36 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full border border-[#D8E0ED] rounded-2xl px-4 py-3 text-sm text-[#1F2937] focus:outline-none focus:border-[#2563FF] focus:shadow-[0_0_0_4px_rgba(159,185,255,0.35)] transition-all"
               placeholder="••••••••"
-              required
+              autoComplete="current-password"
             />
           </div>
-          {error && <p className="text-[#D14343] text-xs">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-[#0B0D12] text-white py-3 rounded-full font-bold text-sm hover:bg-[#1A1F2C] transition-colors mt-2"
+            disabled={busy}
+            className="w-full bg-[#0B0D12] text-white py-3 rounded-full font-bold text-sm hover:bg-[#1A1F2C] transition-colors mt-2 disabled:opacity-60"
           >
-            Sign In
+            {busy ? "Signing in…" : "Sign In"}
           </button>
         </form>
 
-        <p className="text-xs text-[#6B7280] text-center mt-6">
-          Demo only · Not a real bank
-        </p>
+        <div className="mt-6">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#6B7280] mb-2">Or sign in as</p>
+          <div className="flex flex-wrap gap-2">
+            {DEMO_USERS.map((u) => (
+              <button
+                key={u.email}
+                type="button"
+                onClick={() => signIn(u.email)}
+                disabled={busy}
+                className="text-xs font-bold px-3 py-1.5 rounded-full border border-[#D8E0ED] text-[#0B0D12] hover:border-[#2563FF]/50 hover:bg-[#F6F7FB] transition-colors disabled:opacity-60"
+              >
+                {u.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-xs text-[#6B7280] text-center mt-6">Demo only · any email signs you in · Not a real bank</p>
       </div>
     </div>
   );
