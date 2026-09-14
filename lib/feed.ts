@@ -14,11 +14,9 @@ import {
   TIER_VALUES,
 } from "./catalog/types";
 
-export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "") ||
-  "https://banking-demo-five.vercel.app"
-).replace(/\/$/, "");
+import { SITE_URL } from "./site";
+
+export { SITE_URL };
 
 export type Cell = string | number | boolean | string[];
 

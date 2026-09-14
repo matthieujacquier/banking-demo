@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
+import MuseWidget from "@/components/website/MuseWidget";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 const outfit = Outfit({ subsets: ["latin"], weight: ["800"], variable: "--font-outfit" });
@@ -20,7 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* DY scripts are injected per-page via DYContext to guarantee
             recommendationContext is set before api_dynamic.js loads */}
       </head>
-      <body className={`${inter.className} ${outfit.variable}`}>{children}</body>
+      <body className={`${inter.className} ${outfit.variable}`}>
+        {children}
+        {/* Shopping Muse launcher — renders nothing inside the /app phone frame */}
+        <MuseWidget />
+      </body>
     </html>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useDY } from "@/lib/dy-client";
-import { CATEGORIES, PRODUCTS, type ProductCategory } from "@/lib/products";
+import { CATEGORIES, PRODUCTS, getProduct, type Product, type ProductCategory } from "@/lib/products";
 import ProductCard from "@/components/app/ProductCard";
 
 type Filter = ProductCategory | "All";
@@ -17,11 +17,34 @@ const SERVICES: { label: string; accent: string; category?: ProductCategory }[] 
   { label: "Support", accent: "#64748B" },
 ];
 
+interface SearchState {
+  key: string; // the query + chip the answer belongs to
+  source: "dy" | "local";
+  slots: { slotId: string; sku: string }[];
+  total: number;
+  corrected?: string;
+  decisionId?: string;
+}
+
+interface SearchResponseShape {
+  _source?: "dy" | "local";
+  decisionId?: string;
+  data?: {
+    slots?: { slotId: string; sku: string }[];
+    totalNumResults?: number;
+    normalizedQuery?: string;
+    spellCheckedQuery?: string;
+  };
+}
+
 export default function ProductsPage() {
   const dy = useDY();
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [filter, setFilter] = useState<Filter>("All");
+  const [search, setSearch] = useState<SearchState | null>(null);
+  const searchKey = submitted ? `${submitted}|${filter}` : "";
+  const searching = !!submitted && search?.key !== searchKey;
 
   const dwellRef = useRef<{ category: Filter; startedAt: number } | null>(null);
 
@@ -62,15 +85,58 @@ export default function ProductsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const visible = PRODUCTS.filter((p) => {
-    const matchesCategory = filter === "All" || p.category === filter;
-    const matchesQuery =
-      submitted === "" ||
-      `${p.name} ${p.description} ${p.subcategory} ${p.category}`
-        .toLowerCase()
-        .includes(submitted.toLowerCase());
-    return matchesCategory && matchesQuery;
-  });
+  // DY Experience Search — re-runs when a query is submitted or the category
+  // chip changes while a query is active. The route falls back to a local
+  // search when the Semantic Search campaign isn't live; `source` says which.
+  useEffect(() => {
+    if (!searchKey) return;
+    let cancelled = false;
+    dy.search(submitted, {
+      filters: filter === "All" ? [] : [{ field: "categories", values: [filter] }],
+      page: { type: "CATEGORY", data: filter === "All" ? ["PRODUCTS"] : [filter] },
+    }).then((res) => {
+      if (cancelled) return;
+      const r = res as SearchResponseShape | null;
+      if (r?.data?.slots) {
+        setSearch({
+          key: searchKey,
+          source: r._source ?? "local",
+          slots: r.data.slots,
+          total: r.data.totalNumResults ?? r.data.slots.length,
+          corrected:
+            r.data.spellCheckedQuery && r.data.spellCheckedQuery !== r.data.normalizedQuery
+              ? r.data.spellCheckedQuery
+              : undefined,
+          decisionId: r.decisionId,
+        });
+      } else {
+        setSearch({ key: searchKey, source: "local", slots: [], total: 0 });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchKey]);
+
+  const visible: Product[] = submitted
+    ? (search && search.key === searchKey ? search.slots : [])
+        .map((s) => getProduct(s.sku))
+        .filter((p): p is Product => !!p)
+    : PRODUCTS.filter((p) => filter === "All" || p.category === filter);
+
+  // Search-result clicks: SLOT_CLICK attributes the click to the DY search
+  // decision; the custom event keeps local-fallback clicks reportable too.
+  function onSelect(product: Product) {
+    if (!search) return;
+    const slot = search.slots.find((s) => s.sku === product.sku);
+    if (search.source === "dy" && slot) dy.reportEngagement("SLOT_CLICK", { slotId: slot.slotId });
+    dy.event("Search Result Click", "Search Result Click", {
+      sku: product.sku,
+      query: submitted,
+      source: search.source,
+    });
+  }
 
   return (
     <div className="px-5 py-6 space-y-6">
@@ -82,9 +148,7 @@ export default function ProductsPage() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          const q = query.trim();
-          setSubmitted(q);
-          if (q) dy.keywordSearch(q);
+          setSubmitted(query.trim());
         }}
       >
         <div className="flex items-center gap-2 bg-[#F6F7FB] border border-[#D8E0ED] rounded-2xl px-4 py-2.5">
@@ -153,18 +217,44 @@ export default function ProductsPage() {
 
       {/* Catalog */}
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-widest text-[#6B7280] mb-3">
-          {visible.length} product{visible.length === 1 ? "" : "s"}
-          {submitted && ` · “${submitted}”`}
-        </p>
-        {visible.length === 0 ? (
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#6B7280]">
+            {searching
+              ? "Searching…"
+              : `${visible.length} product${visible.length === 1 ? "" : "s"}`}
+            {submitted && !searching && ` · “${search?.corrected ?? submitted}”`}
+          </p>
+          {search && !searching && (
+            <span
+              className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border"
+              style={
+                search.source === "dy"
+                  ? { color: "#2563FF", borderColor: "#2563FF40" }
+                  : { color: "#B7791F", borderColor: "#B7791F40" }
+              }
+              title={
+                search.source === "dy"
+                  ? "Served by DY Experience Search"
+                  : "DY Semantic Search campaign not live — local fallback"
+              }
+            >
+              {search.source === "dy" ? "DY Search" : "Local"}
+            </span>
+          )}
+        </div>
+        {search?.corrected && !searching && (
+          <p className="text-[11px] text-[#6B7280] mb-3">
+            Showing results for <span className="font-semibold text-[#0B0D12]">{search.corrected}</span>
+          </p>
+        )}
+        {visible.length === 0 && !searching ? (
           <p className="text-[#6B7280] text-sm py-8 text-center">
             No products match your search.
           </p>
         ) : (
           <div className="space-y-3">
             {visible.map((product) => (
-              <ProductCard key={product.sku} product={product} />
+              <ProductCard key={product.sku} product={product} onSelect={submitted ? onSelect : undefined} />
             ))}
           </div>
         )}

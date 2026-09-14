@@ -6,9 +6,11 @@ import Link from "next/link";
 import BottomNav from "./BottomNav";
 import InspectorPanel from "./InspectorPanel";
 import ProductSheet from "./ProductSheet";
+import MuseSheet from "./MuseSheet";
 import { useDYActivity } from "@/lib/dy-activity";
 import { useDY } from "@/lib/dy-client";
 import { useSheet } from "@/lib/app-sheet";
+import { useMuse } from "@/lib/app-muse";
 
 const emptySubscribe = () => () => {};
 
@@ -66,6 +68,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { panelOpen, unread, panelWidth, resizing, togglePanel } = useDYActivity();
   const { product: sheetProduct } = useSheet();
+  const { isOpen: museOpen, open: openMuse } = useMuse();
   const dy = useDY();
   const booted = useRef(false);
   const screenRef = useRef<HTMLDivElement>(null);
@@ -96,7 +99,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (screenRef.current) screenRef.current.scrollTop = 0;
-  }, [sheetProduct]);
+  }, [sheetProduct, museOpen]);
 
   if (!mounted) return <div className="fixed inset-0 bg-[#0B0D12]" />;
 
@@ -166,9 +169,27 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           {/* Scrollable screen — the only scrolling element */}
           <div ref={screenRef} className="flex-1 overflow-y-auto bg-white">
-            <div className={sheetProduct ? "hidden" : ""}>{children}</div>
+            <div className={sheetProduct || museOpen ? "hidden" : ""}>{children}</div>
+            {/* Muse keeps its conversation while a product sheet opens over it */}
+            {museOpen && (
+              <div className={sheetProduct ? "hidden" : "min-h-full"}>
+                <MuseSheet />
+              </div>
+            )}
             {sheetProduct && <ProductSheet key={sheetProduct.sku} product={sheetProduct} />}
           </div>
+
+          {/* Ask Muse — reachable from every screen */}
+          {!museOpen && !sheetProduct && (
+            <button
+              onClick={() => openMuse()}
+              className="absolute bottom-[88px] right-4 z-30 flex items-center gap-1.5 rounded-full bg-[#0B0D12] text-white pl-3 pr-3.5 py-2 text-xs font-bold border border-white/10 hover:bg-[#1A1F2C] transition-colors"
+              style={{ boxShadow: "0 10px 24px rgba(11,13,18,0.28)" }}
+            >
+              <span className="text-[#F59E0B]">✦</span>
+              Ask Muse
+            </button>
+          )}
 
           <BottomNav />
 

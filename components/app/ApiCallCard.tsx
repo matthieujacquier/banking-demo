@@ -8,6 +8,8 @@ const KIND_COLOR: Record<CallKind, string> = {
   event: "#7C3AED",
   choose: "#2563FF",
   engagement: "#EC4899",
+  search: "#0D9488",
+  muse: "#F59E0B",
 };
 
 const KIND_LABEL: Record<CallKind, string> = {
@@ -15,7 +17,16 @@ const KIND_LABEL: Record<CallKind, string> = {
   event: "EVENT",
   choose: "CHOOSE",
   engagement: "ENGAGE",
+  search: "SEARCH",
+  muse: "MUSE",
 };
+
+// Search and Muse responses carry `_source` ("dy" or "local") so the presenter
+// can tell whether DY or the local fallback served the call.
+function sourceOf(call: ApiCall): "dy" | "local" | null {
+  const body = call.responseBody as { _source?: unknown } | undefined;
+  return body?._source === "dy" || body?._source === "local" ? body._source : null;
+}
 
 function StatusDot({ call }: { call: ApiCall }) {
   const color =
@@ -75,8 +86,20 @@ export default function ApiCallCard({ call }: { call: ApiCall }) {
           {KIND_LABEL[call.kind]}
         </span>
         <span className="flex-1 min-w-0 truncate text-[12px] font-semibold text-white">
-          {call.title.replace(/^(Event|Choose|Pageview|Engagement) · /, "")}
+          {call.title.replace(/^(Event|Choose|Pageview|Engagement|Search|Muse) · /, "")}
         </span>
+        {sourceOf(call) && (
+          <span
+            className="text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded"
+            style={
+              sourceOf(call) === "dy"
+                ? { color: "#7DD3FC", background: "#7DD3FC22" }
+                : { color: "#FCD34D", background: "#FCD34D22" }
+            }
+          >
+            {sourceOf(call) === "dy" ? "DY" : "LOCAL"}
+          </span>
+        )}
         <StatusDot call={call} />
         <span className="text-white/55 text-[10px]">{open ? "▲" : "▼"}</span>
       </button>

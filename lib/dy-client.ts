@@ -4,13 +4,24 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDYActivity, type CallKind } from "./dy-activity";
 import { applyCookies, loadIdentity, saveIdentity, sha256Hex } from "./dy-user";
 import { eventValue, type Product } from "./products";
+import { profileAttributes } from "./profile";
+import type { SearchFilter } from "./search-local";
 
 const API = {
   pageview: "/api/dy/pageview",
   event: "/api/dy/event",
   choose: "/api/dy/choose",
   engagement: "/api/dy/engagement",
+  search: "/api/dy/search",
+  muse: "/api/dy/muse",
 };
+
+export interface SearchOptions {
+  filters?: SearchFilter[];
+  pagination?: { numItems: number; offset: number };
+  sortBy?: { field: string; order: "asc" | "desc" };
+  page?: PageContext;
+}
 
 export interface PageContext {
   type: string;
@@ -90,13 +101,20 @@ export function useDY() {
       properties: Record<string, unknown>,
     ) => call("event", `Event · ${title}`, API.event, eventBody([{ name, properties }]));
 
+    // The app is a phone; the customer's declared financial profile rides
+    // along as pageAttributes so campaigns can target on it.
+    const attrs = () => {
+      const a = profileAttributes();
+      return Object.keys(a).length ? { pageAttributes: a } : {};
+    };
+
     return {
       choose: (selectorNames: string[], ctx: PageContext) =>
         call("choose", `Choose · ${selectorNames.join(", ")}`, API.choose, {
           user: user(),
           session: session(),
           selector: { names: selectorNames },
-          context: { page: page(ctx), device: { type: "DESKTOP" } },
+          context: { page: page(ctx), device: { type: "SMARTPHONE" }, channel: "APP", ...attrs() },
           options: { returnAnalyticsMetadata: true },
         }),
 
@@ -104,7 +122,34 @@ export function useDY() {
         call("pageview", `Pageview · ${ctx.type}`, API.pageview, {
           user: user(),
           session: session(),
-          context: { page: page(ctx), device: { type: "DESKTOP" } },
+          context: { page: page(ctx), device: { type: "SMARTPHONE" }, channel: "APP" },
+        }),
+
+      // DY Experience Search (server route falls back to a local search when
+      // the Semantic Search campaign isn't live; the response says which).
+      search: (text: string, opts: SearchOptions = {}) =>
+        call("search", `Search · ${text.trim() || "browse"}`, API.search, {
+          user: user(),
+          session: session(),
+          text,
+          filters: opts.filters ?? [],
+          pagination: opts.pagination ?? { numItems: 24, offset: 0 },
+          ...(opts.sortBy ? { sortBy: opts.sortBy } : {}),
+          channel: "APP",
+          page: page(opts.page ?? { type: "OTHER", data: ["SEARCH"] }),
+          ...attrs(),
+        }),
+
+      // DY Shopping Muse. Omit chatId on the first turn; echo it afterwards.
+      muse: (text: string, chatId?: string) =>
+        call("muse", `Muse · ${text.trim()}`, API.muse, {
+          user: user(),
+          session: session(),
+          text,
+          ...(chatId ? { chatId } : {}),
+          channel: "APP",
+          page: page({ type: "OTHER", data: ["MUSE"] }),
+          ...attrs(),
         }),
 
       identify: async (email: string) => {
