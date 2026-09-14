@@ -141,7 +141,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
 const MAX_CELL = 1000;
 
 export interface ValidateOptions {
-  // Return true when a site-relative asset (e.g. "/images/products/x.png") exists.
+  // Return true when a site-relative asset (e.g. "/images/products/x.jpg") exists.
   fileExists?: (relativePath: string) => boolean;
 }
 

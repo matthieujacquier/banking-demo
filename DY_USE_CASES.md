@@ -8,7 +8,7 @@ Campaigns to configure in Experience OS for site `8782014`. Every hook named bel
 
 ## 0. Admin setup checklist (do once)
 
-1. **Product feed** — upload `nexabank_product_feed.csv` (Feeds › Product Feed) or set the feed URL to `https://banking-demo-five.vercel.app/api/feed` for automatic sync. 54 products, 53 columns. Allow-list DY's crawler IPs so it can fetch the product images (`/images/products/*.png`, `/loans/*.jpg`).
+1. **Product feed** — upload `nexabank_product_feed.csv` (Feeds › Product Feed) or set the feed URL to `https://banking-demo-five.vercel.app/api/feed` for automatic sync. 54 products, 53 columns. Allow-list DY's crawler IPs so it can fetch the product images (`/images/products/*.jpg`, `/loans/*.jpg`).
 2. **Experience Search** — searchable fields: `name` and `tagline` (high priority), `product_type`, `categories`, `keywords`. Not `description`. Facets: `categories`, `segment`, `type:array:personas`, `type:array:goals`, `liquidity`, `type:number:risk_level`, `type:number:aer`, `price`. Brand name: NexaBank. Selector name is fixed: **Semantic Search**.
 3. **Shopping Muse** — brand name NexaBank, tone "clear, warm, no jargon, always mention that investments carry risk". Selector name is fixed: **Shopping Muse**. Product tile mapping: main text `name`, secondary `dy_display_price`, price `price`. Optional: switch the website launcher to DY's own chat template with `NEXT_PUBLIC_MUSE_MODE=template` (the launcher already carries the `dy-chat-cta` class).
 4. **App selectors to create** (Experience API campaigns): `App Home Recommendations` (recommendations), `App Offers` (API Custom JSON), plus the existing `App Invest Advisor Prompt`.

@@ -1,12 +1,12 @@
-// Renders a branded 1200×1200 PNG tile for every product that has no real
-// photo (public/images/products/<slug>.png), so DY's semantic-search training
-// never sees a missing image. Run with `npm run images`. Uses sharp, which
-// Next.js already installs.
+// Fallback imagery: renders a branded 1200×1200 tile for any product whose
+// photo (public/images/products/<slug>.jpg) is missing, so DY's semantic-search
+// training never sees a broken image. Run with `npm run images`. Uses sharp,
+// which Next.js already installs.
 
-import { mkdirSync } from "node:fs";
+import { existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import sharp from "sharp";
-import { PRODUCTS, slugOf } from "../lib/products";
+import { PRODUCTS } from "../lib/products";
 
 // Run from the project root (`npm run images`).
 const root = process.cwd();
@@ -74,14 +74,20 @@ function tileSvg(name: string, category: string, accent: string): string {
 
 async function main() {
   let written = 0;
+  let skipped = 0;
   for (const p of PRODUCTS) {
     if (!p.imageUrl.startsWith("/images/products/")) continue;
-    const file = resolve(outDir, `${slugOf(p)}.png`);
+    const file = resolve(root, "public", `.${p.imageUrl}`);
+    if (existsSync(file)) {
+      skipped++;
+      continue;
+    }
+    // No photo yet — write the tile as a JPEG at the path the feed points to.
     const svg = tileSvg(p.shortName ?? p.name, p.category, p.accent);
-    await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toFile(file);
+    await sharp(Buffer.from(svg)).jpeg({ quality: 88 }).toFile(file);
     written++;
   }
-  console.log(`Wrote ${written} product tiles to public/images/products/`);
+  console.log(`Wrote ${written} fallback tile(s); ${skipped} product(s) already have a photo.`);
 }
 
 main().catch((err) => {

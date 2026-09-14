@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Nexa Cards — Style Picker</title>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;background:#0B0D12;color:#fff;font-family:system-ui,-apple-system,sans-serif;overflow:hidden}
+    iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#0B0D12}
+    nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;padding:6px;background:rgba(20,22,28,.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:999px;z-index:10}
+    nav a{padding:8px 16px;border-radius:999px;color:rgba(255,255,255,.65);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:.02em;transition:all .15s}
+    nav a:hover{color:#fff;background:rgba(255,255,255,.06)}
+    nav a.active{color:#0B0D12;background:#fff}
+    .info{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 14px;background:rgba(20,22,28,.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:999px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.55);z-index:10}
+  </style>
+</head>
+<body>
+  <iframe id="frame" src="/nexa-cards-v1-obsidian.html"></iframe>
+  <nav>
+    <a data-src="/nexa-cards-v1-obsidian.html"     class="active">V1 · Obsidian + Neon</a>
+    <a data-src="/nexa-cards-v2-holographic.html">V2 · Holographic</a>
+    <a data-src="/nexa-cards-v3-matte.html">V3 · Deep Matte</a>
+    <a data-src="/nexa-cards-v4-aura.html">V4 · Inner Aura</a>
+    <a data-src="/nexa-cards-bg.html">Current (live)</a>
+  </nav>
+  <div class="info" id="info">V1 · Obsidian + Neon edge</div>
+  <script>
+    const frame = document.getElementById('frame');
+    const info  = document.getElementById('info');
+    document.querySelectorAll('nav a').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelectorAll('nav a').forEach(x => x.classList.remove('active'));
+        a.classList.add('active');
+        frame.src = a.dataset.src;
+        info.textContent = a.textContent;
+      });
+    });
+  </script>
+</body>
+</html>

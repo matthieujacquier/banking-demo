@@ -20,7 +20,7 @@
 | `url` | Absolute product URL | `https://…/products/loans/real-estate-loan` |
 | `price` | **Annual cost to hold or use the product** in EUR/year — fees and premiums. `0` = free. Loans are 0 (their cost is `interest_rate`) | `99` for NexaNomad |
 | `in_stock` | Always lowercase `true` | `true` |
-| `image_url` | Absolute image URL (loan photos, otherwise generated tiles) | `https://…/images/products/bond-fund.png` |
+| `image_url` | Absolute image URL — a real photo per product (`public/images/products/<slug>.jpg`, credits in `CREDITS.md` there; loans under `/loans/`) | `https://…/images/products/bond-fund.jpg` |
 | `categories` | `Category\|Subcategory\|Short name` | `Cards\|Travel\|NexaNomad` |
 
 ## Descriptive columns

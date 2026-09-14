@@ -226,7 +226,9 @@ export function defineProducts(inputs: ProductInput[]): Product[] {
       minAge: 0,
       minIncome: 0,
       inStock: true,
-      imageUrl: `/images/products/${slugOf(p)}.png`,
+      // A real photo per product lives in public/images/products/ (see CREDITS.md
+      // there); `npm run images` renders a branded tile only where one is missing.
+      imageUrl: `/images/products/${slugOf(p)}.jpg`,
       ...p,
       lifeStage: p.personas[0],
       annualFee: p.price,
