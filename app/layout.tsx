@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import MuseWidget from "@/components/website/MuseWidget";
+import CompareBar from "@/components/website/CompareBar";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 const outfit = Outfit({ subsets: ["latin"], weight: ["800"], variable: "--font-outfit" });
@@ -23,8 +24,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${inter.className} ${outfit.variable}`}>
         {children}
-        {/* Shopping Muse launcher — renders nothing inside the /app phone frame */}
+        {/* Shopping Muse launcher and the compare tray — neither renders inside the /app phone frame */}
         <MuseWidget />
+        <CompareBar />
       </body>
     </html>
   );

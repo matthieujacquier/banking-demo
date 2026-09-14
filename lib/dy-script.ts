@@ -20,3 +20,13 @@ export async function fireLoginEvent(email: string): Promise<void> {
     properties: { dyType: "login-v1", cuid, cuidType: "he" },
   });
 }
+
+// Sign-up completed: identifies the new customer (hashed email) and lets DY
+// attribute the acquisition to whatever campaign brought them here.
+export async function fireSignupEvent(email: string, productSku?: string): Promise<void> {
+  const cuid = await sha256Hex(email);
+  getDyApi()?.("event", {
+    name: "Signup",
+    properties: { dyType: "signup-v1", cuid, cuidType: "he", ...(productSku ? { product: productSku } : {}) },
+  });
+}

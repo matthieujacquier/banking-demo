@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import DYContext from "@/components/DYContext";
 import { CATEGORY_ACCENT, getProduct } from "@/lib/products";
+import { fireSignupEvent } from "@/lib/dy-script";
 
 const STEPS = ["Your details", "Identity check", "Confirm"];
 
@@ -52,9 +53,11 @@ function SignupFlow() {
   const set = (key: keyof typeof form) => (v: string) =>
     setForm((f) => ({ ...f, [key]: v }));
 
-  function finish() {
-    // Identify fires server-side inside AppShell once /app/home mounts —
-    // visible in the Inspector as the first event of the session.
+  async function finish() {
+    // Signup (signup-v1, hashed email) goes out through the DY client script
+    // here; Identify then fires server-side inside AppShell once /app/home
+    // mounts — visible in the Inspector as the first event of the session.
+    await fireSignupEvent(form.email, product?.sku);
     sessionStorage.setItem(
       "nexabank_user",
       JSON.stringify({ name: form.name, email: form.email }),
@@ -214,7 +217,7 @@ function SignupFlow() {
               </button>
             </div>
             <p className="text-center text-[#6B7280] text-[11px]">
-              Fires an <span className="font-semibold">Identify User</span> event to Dynamic Yield
+              Fires a <span className="font-semibold">Signup</span> event to Dynamic Yield
             </p>
           </div>
         )}

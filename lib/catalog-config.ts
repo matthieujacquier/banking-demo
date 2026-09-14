@@ -518,6 +518,13 @@ export function specRows(product: Product, view: SpecView): Spec[] {
   });
 }
 
+// The most popular products for a persona (products tagged "all" count for everyone).
+export function productsForPersona(persona: Persona, limit = 3): Product[] {
+  return PRODUCTS.filter((p) => p.personas.includes(persona) || (persona !== "all" && p.personas.includes("all")))
+    .sort((a, b) => Number(b.personas[0] === persona) - Number(a.personas[0] === persona) || b.popularityScore - a.popularityScore)
+    .slice(0, limit);
+}
+
 export const PERSONA_LABEL: Record<Persona, string> = {
   all: "Everyone",
   student: "Students",

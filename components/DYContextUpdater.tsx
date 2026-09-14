@@ -2,7 +2,9 @@
 
 import { useEffect } from "react";
 
-type DYPageContext =
+// The page context DY's client script reads from window.DY.recommendationContext.
+// Single source of truth — DYContext.tsx imports it from here.
+export type DYPageContext =
   | { type: "HOMEPAGE" }
   | { type: "CATEGORY"; data: string[] }
   | { type: "PRODUCT"; data: string[] }

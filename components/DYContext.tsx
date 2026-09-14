@@ -1,13 +1,6 @@
 import Script from "next/script";
 import { DY_SITE_ID } from "@/lib/dy-config";
-import DYContextUpdater from "./DYContextUpdater";
-
-type DYPageContext =
-  | { type: "HOMEPAGE" }
-  | { type: "CATEGORY"; data: string[] }
-  | { type: "PRODUCT"; data: string[] }
-  | { type: "CART" }
-  | { type: "OTHER"; data: string[] };
+import DYContextUpdater, { type DYPageContext } from "./DYContextUpdater";
 
 export default function DYContext({ context }: { context: DYPageContext }) {
   if (!DY_SITE_ID) return null;

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Product } from "@/lib/products";
 import { CATEGORY_CONFIG, specRows } from "@/lib/catalog-config";
+import CompareToggle from "@/components/website/CompareToggle";
+import Rating from "@/components/website/Rating";
 
 // The standard product listing card. Credit cards use CreditCardTile instead.
 export default function ProductCard({ product }: { product: Product }) {
@@ -30,6 +32,10 @@ export default function ProductCard({ product }: { product: Product }) {
       <h3 className="font-bold text-[#0B0D12] text-xl mb-2" style={{ letterSpacing: "-0.01em" }}>
         {product.name}
       </h3>
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <Rating rating={product.customerRating} count={product.reviewCount} />
+        <CompareToggle sku={product.sku} />
+      </div>
       <p className="text-[#6B7280] text-sm leading-relaxed mb-5 flex-1">{product.cardDescription}</p>
 
       <div className="space-y-2.5 text-sm mb-5">
