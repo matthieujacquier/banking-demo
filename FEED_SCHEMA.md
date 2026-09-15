@@ -9,6 +9,9 @@
 - Cells are at most 1,000 characters; array cells are pipe-separated (`|`) and items never contain a pipe.
 - Column names follow DY's typed convention: `type:number:*`, `type:array:*`, `type:date:*`, otherwise a string. **DY never lets you remove a column once uploaded** — add, don't rename.
 - `url` and `image_url` are absolute, built from `NEXT_PUBLIC_SITE_URL` (default `https://banking-demo-five.vercel.app`).
+- Product images must stay small. DY's catalog crawler caps images at 10 MB and allows each download 5 seconds, and
+  training fails outright once it cannot fetch more than 15% of them. Keep every file under 2 MB — `npm run feed`
+  fails the build if one is larger. Photos are 1600×1200 baseline JPEG; loan heroes are 2400 px wide.
 
 ## Mandatory DY columns
 

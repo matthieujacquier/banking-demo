@@ -143,7 +143,14 @@ const MAX_CELL = 1000;
 export interface ValidateOptions {
   // Return true when a site-relative asset (e.g. "/images/products/x.jpg") exists.
   fileExists?: (relativePath: string) => boolean;
+  // Size of that asset in bytes, so oversized images are caught before DY sees them.
+  fileSize?: (relativePath: string) => number;
 }
+
+// DY's catalog crawler rejects images over 10 MB and gives each download a
+// 5-second timeout; training fails once more than 15% of images are missing.
+// Staying an order of magnitude under the cap keeps every fetch comfortable.
+const MAX_IMAGE_BYTES = 2_000_000;
 
 export function validateFeed(
   rows: Cell[][] = feedRows(),
@@ -217,7 +224,13 @@ export function validateFeed(
 
     if (options.fileExists) {
       const rel = image.replace(SITE_URL, "");
-      if (!options.fileExists(rel)) err(i, "image_url", `${rel} does not exist under public/`);
+      if (!options.fileExists(rel)) {
+        err(i, "image_url", `${rel} does not exist under public/`);
+      } else if (options.fileSize) {
+        const bytes = options.fileSize(rel);
+        if (bytes > MAX_IMAGE_BYTES)
+          err(i, "image_url", `${rel} is ${(bytes / 1048576).toFixed(1)}MB — resize it to stay under ${MAX_IMAGE_BYTES / 1048576}MB`);
+      }
     }
   });
 

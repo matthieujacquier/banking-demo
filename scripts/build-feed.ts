@@ -1,7 +1,7 @@
 // Writes nexabank_product_feed.csv from lib/products.ts after validating it
 // against the DY rules in FEED_SCHEMA.md. Run with `npm run feed`.
 
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { FEED_HEADER, SITE_URL, feedRows, toCsv, validateFeed } from "../lib/feed";
 
@@ -10,6 +10,7 @@ const root = process.cwd();
 const rows = feedRows();
 const errors = validateFeed(rows, FEED_HEADER, {
   fileExists: (rel) => existsSync(resolve(root, "public", `.${rel}`)),
+  fileSize: (rel) => statSync(resolve(root, "public", `.${rel}`)).size,
 });
 
 if (errors.length > 0) {
