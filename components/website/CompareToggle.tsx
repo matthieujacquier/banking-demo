@@ -1,6 +1,8 @@
 "use client";
 
 import { COMPARE_MAX, toggleCompare, useCompare } from "@/lib/compare";
+import { dyTrack } from "@/lib/dy-public";
+import { getProduct } from "@/lib/products";
 
 // "Compare" toggle on product cards and detail pages.
 export default function CompareToggle({ sku, variant = "card" }: { sku: string; variant?: "card" | "detail" }) {
@@ -8,11 +10,35 @@ export default function CompareToggle({ sku, variant = "card" }: { sku: string; 
   const on = selected.includes(sku);
   const full = !on && selected.length >= COMPARE_MAX;
 
+  // Comparing is the strongest pre-application signal this site has, so every
+  // click reports the product, the numbers DY can build audiences on, and the
+  // basket it leaves behind.
+  function onToggle() {
+    const next = toggleCompare(sku);
+    const product = getProduct(sku);
+    if (!product) return;
+    dyTrack(next.includes(sku) ? "Add to Compare" : "Remove from Compare", {
+      sku,
+      productName: product.name,
+      category: product.category,
+      subcategory: product.subcategory,
+      price: product.price,
+      currency: "EUR",
+      interestRate: product.interestRate,
+      aer: product.aer,
+      riskLevel: product.riskLevel,
+      surface: variant === "detail" ? "pdp" : "listing",
+      page: window.location.pathname,
+      compareCount: next.length,
+      compareSkus: next.join(","),
+    });
+  }
+
   if (variant === "detail") {
     return (
       <button
         type="button"
-        onClick={() => toggleCompare(sku)}
+        onClick={onToggle}
         disabled={full}
         className={`block w-full text-center py-3 rounded-full font-bold text-sm border transition-colors disabled:opacity-40 ${
           on ? "bg-[#E7EEFF] border-[#2563FF]/30 text-[#2563FF]" : "border-[#D8E0ED] text-[#0B0D12] hover:bg-[#F6F7FB]"
@@ -26,7 +52,7 @@ export default function CompareToggle({ sku, variant = "card" }: { sku: string; 
   return (
     <button
       type="button"
-      onClick={() => toggleCompare(sku)}
+      onClick={onToggle}
       disabled={full}
       aria-pressed={on}
       title={full ? `You can compare up to ${COMPARE_MAX} products` : "Add to compare"}

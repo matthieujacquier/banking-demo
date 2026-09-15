@@ -4,6 +4,7 @@
 // we read those so server-side calls share the same profile, and write back
 // any cookies DY returns.
 
+import { fireSiteEvent } from "./dy-script";
 import type { SearchData, SearchFilter } from "./search-local";
 
 function readCookie(name: string): string | undefined {
@@ -120,6 +121,14 @@ export function dyReportSlotClick(slotId: string | undefined) {
     ...dyIdentity(),
     engagements: [{ type: "SLOT_CLICK", slotId }],
   });
+}
+
+// Site events go through DY's own client script when it is on the page and
+// through the server-side Events API otherwise, so an event is reported once
+// either way.
+export function dyTrack(name: string, properties: Record<string, unknown>) {
+  if (fireSiteEvent(name, properties)) return Promise.resolve(null);
+  return dyEvent(name, properties);
 }
 
 export function dyEvent(name: string, properties: Record<string, unknown>) {

@@ -6,8 +6,7 @@ import ProductCard from "@/components/website/ProductCard";
 import SearchMuseHandoff from "@/components/website/SearchMuseHandoff";
 import { CATEGORIES, getProduct, type Product } from "@/lib/products";
 import { CATEGORY_CONFIGS, PERSONA_LABEL, GOAL_LABEL } from "@/lib/catalog-config";
-import { dySearch, dyReportSlotClick, dyEvent, type SearchResponse } from "@/lib/dy-public";
-import { fireKeywordSearchEvent } from "@/lib/dy-script";
+import { dySearch, dyReportSlotClick, dyEvent, dyTrack, type SearchResponse } from "@/lib/dy-public";
 import type { Facet, SearchFilter } from "@/lib/search-local";
 import type { Goal, Persona } from "@/lib/products";
 
@@ -88,7 +87,7 @@ export default function SearchResults({ initialQuery }: { initialQuery: string }
   useEffect(() => {
     const keywords = initialQuery.trim();
     if (!keywords) return;
-    if (!fireKeywordSearchEvent(keywords)) dyEvent("Keyword Search", { dyType: "keyword-search-v1", keywords });
+    dyTrack("Keyword Search", { dyType: "keyword-search-v1", keywords });
   }, [initialQuery]);
 
   const items = useMemo(

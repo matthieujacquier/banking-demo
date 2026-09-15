@@ -13,13 +13,14 @@ function getDyApi(): DyApi | undefined {
   return typeof dy?.API === "function" ? (dy.API as DyApi) : undefined;
 }
 
-// Keyword Search (keyword-search-v1) — DY's documented client-side
-// implementation. Returns false when DY's script isn't on the page (blocked,
-// or not loaded yet) so the caller can report the event server-side instead.
-export function fireKeywordSearchEvent(keywords: string): boolean {
+// Reports an event through DY's script — the documented client-side form, so
+// it is visible in the browser and in DY's debugger. Returns false when the
+// script isn't on the page (blocked, or not loaded yet) so the caller can
+// report the event server-side instead.
+export function fireSiteEvent(name: string, properties: Record<string, unknown>): boolean {
   const api = getDyApi();
   if (!api) return false;
-  api("event", { name: "Keyword Search", properties: { dyType: "keyword-search-v1", keywords } });
+  api("event", { name, properties });
   return true;
 }
 

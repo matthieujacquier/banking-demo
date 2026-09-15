@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clearCompare, compareHref, useCompare, COMPARE_MAX } from "@/lib/compare";
+import { dyTrack } from "@/lib/dy-public";
 import { getProduct } from "@/lib/products";
 
 // Floating tray showing the products picked for comparison.
@@ -22,6 +23,15 @@ export default function CompareBar() {
       </span>
       <Link
         href={compareHref(skus)}
+        onClick={() =>
+          dyTrack("Compare Opened", {
+            compareCount: skus.length,
+            compareSkus: skus.join(","),
+            productNames: names.join(", "),
+            categories: [...new Set(skus.map((s) => getProduct(s)?.category).filter(Boolean))].join(","),
+            page: window.location.pathname,
+          })
+        }
         className="shrink-0 bg-[#0B0D12] text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-[#1A1F2C] transition-colors"
       >
         Compare →
