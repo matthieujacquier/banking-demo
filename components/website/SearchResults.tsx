@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import ProductCard from "@/components/website/ProductCard";
+import SearchMuseHandoff from "@/components/website/SearchMuseHandoff";
 import { CATEGORIES, getProduct, type Product } from "@/lib/products";
 import { CATEGORY_CONFIGS, PERSONA_LABEL, GOAL_LABEL } from "@/lib/catalog-config";
 import { dySearch, dyReportSlotClick, dyEvent, type SearchResponse } from "@/lib/dy-public";
@@ -270,6 +271,8 @@ export default function SearchResults({ initialQuery }: { initialQuery: string }
               </button>
             </div>
           )}
+
+          {initialQuery.trim() && result && <SearchMuseHandoff key={initialQuery} query={initialQuery} total={total} />}
         </div>
       </div>
     </section>
