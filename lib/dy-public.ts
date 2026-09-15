@@ -126,9 +126,29 @@ export function dyReportSlotClick(slotId: string | undefined) {
 // Site events go through DY's own client script when it is on the page and
 // through the server-side Events API otherwise, so an event is reported once
 // either way.
-export function dyTrack(name: string, properties: Record<string, unknown>) {
+//
+// `DY.API` lives in api_static.js, which Next loads through its own script
+// loader — `beforeInteractive` only applies in the root layout, and ours is
+// injected per page. So on a cold load the script is still in flight when a
+// page reports an event on mount. Wait for it rather than falling straight
+// back: only the client-side event shows up in DY's implementation widget.
+const DY_SCRIPT_WAIT_MS = 5000;
+const DY_SCRIPT_POLL_MS = 100;
+
+export function dyTrack(name: string, properties: Record<string, unknown>): Promise<unknown> {
   if (fireSiteEvent(name, properties)) return Promise.resolve(null);
-  return dyEvent(name, properties);
+  return new Promise((resolve) => {
+    const startedAt = Date.now();
+    const timer = setInterval(() => {
+      if (fireSiteEvent(name, properties)) {
+        clearInterval(timer);
+        resolve(null);
+      } else if (Date.now() - startedAt >= DY_SCRIPT_WAIT_MS) {
+        clearInterval(timer);
+        resolve(dyEvent(name, properties));
+      }
+    }, DY_SCRIPT_POLL_MS);
+  });
 }
 
 export function dyEvent(name: string, properties: Record<string, unknown>) {
