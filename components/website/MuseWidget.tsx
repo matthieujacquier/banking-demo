@@ -148,7 +148,7 @@ export default function MuseWidget() {
           if (MUSE_MODE === "template") return; // DY's template owns the click
           setOpen((v) => !v);
         }}
-        className="dy-chat-cta fixed bottom-5 right-5 z-[60] flex items-center gap-2 rounded-full bg-[#0B0D12] text-white pl-4 pr-5 py-3 text-sm font-bold shadow-[0_16px_34px_rgba(11,13,18,0.35)] border border-white/10 hover:bg-[#1A1F2C] transition-colors"
+        className="dy-chat-cta fixed bottom-5 left-5 z-[60] flex items-center gap-2 rounded-full bg-[#0B0D12] text-white pl-4 pr-5 py-3 text-sm font-bold shadow-[0_16px_34px_rgba(11,13,18,0.35)] border border-white/10 hover:bg-[#1A1F2C] transition-colors"
         aria-expanded={open}
         aria-label="Open Shopping Muse"
       >
@@ -160,7 +160,7 @@ export default function MuseWidget() {
         <div
           role="dialog"
           aria-label="Shopping Muse"
-          className="fixed bottom-20 right-5 z-[60] w-[380px] max-w-[calc(100vw-2.5rem)] h-[600px] max-h-[calc(100vh-7rem)] flex flex-col rounded-3xl bg-white border border-[#D8E0ED] shadow-[0_24px_60px_rgba(11,13,18,0.28)] overflow-hidden"
+          className="fixed bottom-20 left-5 z-[60] w-[380px] max-w-[calc(100vw-2.5rem)] h-[600px] max-h-[calc(100vh-7rem)] flex flex-col rounded-3xl bg-white border border-[#D8E0ED] shadow-[0_24px_60px_rgba(11,13,18,0.28)] overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center gap-3 px-5 py-4 bg-[#0B0D12] text-white">

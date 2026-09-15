@@ -13,7 +13,7 @@ export default function CompareBar() {
   const names = skus.map((s) => getProduct(s)?.shortName ?? getProduct(s)?.name ?? s);
 
   return (
-    <div className="fixed bottom-5 left-5 z-[55] flex items-center gap-3 rounded-full bg-white border border-[#D8E0ED] pl-4 pr-2 py-2 shadow-[0_16px_34px_rgba(11,13,18,0.18)] max-w-[calc(100vw-2.5rem)]">
+    <div className="fixed bottom-5 right-5 z-[55] flex items-center gap-3 rounded-full bg-white border border-[#D8E0ED] pl-4 pr-2 py-2 shadow-[0_16px_34px_rgba(11,13,18,0.18)] max-w-[calc(100vw-2.5rem)]">
       <span className="text-xs text-[#6B7280] truncate">
         <span className="font-bold text-[#0B0D12]">
           Compare ({skus.length}/{COMPARE_MAX})
