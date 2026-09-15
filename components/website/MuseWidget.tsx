@@ -34,6 +34,17 @@ interface Message {
   widgets?: Widget[];
   unavailable?: boolean;
   support?: boolean;
+  replies?: MuseReply[];
+}
+
+// A one-tap answer to a question Muse opened with.
+export interface MuseReply {
+  label: string;
+  // Sent to Muse as if the visitor had typed it…
+  prompt?: string;
+  // …or a link away from the conversation (an advisor, say).
+  href?: string;
+  onSelect?: () => void;
 }
 
 function resolveWidgets(res: MuseResponse): Widget[] {
@@ -52,6 +63,12 @@ function resolveWidgets(res: MuseResponse): Widget[] {
 // `new CustomEvent("nexabank:muse", { detail: { prompt } })`.
 export function openMuse(prompt?: string) {
   window.dispatchEvent(new CustomEvent("nexabank:muse", { detail: { prompt: prompt ?? "" } }));
+}
+
+// …or open it on a question the visitor only has to answer: `greeting` arrives
+// as a message from Muse and each reply is a single tap.
+export function nudgeMuse(greeting: string, replies: MuseReply[]) {
+  window.dispatchEvent(new CustomEvent("nexabank:muse", { detail: { greeting, replies } }));
 }
 
 export default function MuseWidget() {
@@ -74,9 +91,14 @@ export default function MuseWidget() {
 
   useEffect(() => {
     function onOpen(e: Event) {
-      const prompt = (e as CustomEvent<{ prompt?: string }>).detail?.prompt ?? "";
+      const detail = (e as CustomEvent<{ prompt?: string; greeting?: string; replies?: MuseReply[] }>).detail ?? {};
       setOpen(true);
-      if (prompt) setInput(prompt.slice(0, MAX_PROMPT));
+      if (detail.prompt) setInput(detail.prompt.slice(0, MAX_PROMPT));
+      const greeting = detail.greeting;
+      if (!greeting) return;
+      setMessages((m) =>
+        m[m.length - 1]?.text === greeting ? m : [...m, { role: "assistant", text: greeting, replies: detail.replies }],
+      );
     }
     window.addEventListener("nexabank:muse", onOpen);
     return () => window.removeEventListener("nexabank:muse", onOpen);
@@ -233,6 +255,38 @@ export default function MuseWidget() {
                       </Link>
                     )}
                   </div>
+                  {m.replies && i === messages.length - 1 && !sending && (
+                    <div className="flex flex-wrap gap-2">
+                      {m.replies.map((r, k) =>
+                        r.href ? (
+                          <Link
+                            key={r.label}
+                            href={r.href}
+                            onClick={r.onSelect}
+                            className="text-sm font-bold rounded-full px-4 py-2 border border-[#D8E0ED] bg-white text-[#0B0D12] hover:border-[#2563FF]/50 transition-colors"
+                          >
+                            {r.label}
+                          </Link>
+                        ) : (
+                          <button
+                            key={r.label}
+                            type="button"
+                            onClick={() => {
+                              r.onSelect?.();
+                              send(r.prompt ?? r.label);
+                            }}
+                            className={`text-sm font-bold rounded-full px-4 py-2 border transition-colors ${
+                              k === 0
+                                ? "bg-[#0B0D12] text-white border-[#0B0D12] hover:bg-[#1A1F2C]"
+                                : "bg-white text-[#0B0D12] border-[#D8E0ED] hover:border-[#2563FF]/50"
+                            }`}
+                          >
+                            {r.label}
+                          </button>
+                        ),
+                      )}
+                    </div>
+                  )}
                   {m.widgets?.map((w, j) => (
                     <div key={j}>
                       {w.title && (
