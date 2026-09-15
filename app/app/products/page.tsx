@@ -148,7 +148,9 @@ export default function ProductsPage() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          setSubmitted(query.trim());
+          const keywords = query.trim();
+          setSubmitted(keywords);
+          if (keywords) dy.keywordSearch(keywords);
         }}
       >
         <div className="flex items-center gap-2 bg-[#F6F7FB] border border-[#D8E0ED] rounded-2xl px-4 py-2.5">

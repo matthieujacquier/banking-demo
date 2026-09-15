@@ -7,6 +7,7 @@ import SearchMuseHandoff from "@/components/website/SearchMuseHandoff";
 import { CATEGORIES, getProduct, type Product } from "@/lib/products";
 import { CATEGORY_CONFIGS, PERSONA_LABEL, GOAL_LABEL } from "@/lib/catalog-config";
 import { dySearch, dyReportSlotClick, dyEvent, type SearchResponse } from "@/lib/dy-public";
+import { fireKeywordSearchEvent } from "@/lib/dy-script";
 import type { Facet, SearchFilter } from "@/lib/search-local";
 import type { Goal, Persona } from "@/lib/products";
 
@@ -81,6 +82,14 @@ export default function SearchResults({ initialQuery }: { initialQuery: string }
       cancelled = true;
     };
   }, [initialQuery, filters, sortId, page, requestKey]);
+
+  // DY's Keyword Search event: once per query — not again when the visitor
+  // narrows with a facet, re-sorts or pages through the same search.
+  useEffect(() => {
+    const keywords = initialQuery.trim();
+    if (!keywords) return;
+    if (!fireKeywordSearchEvent(keywords)) dyEvent("Keyword Search", { dyType: "keyword-search-v1", keywords });
+  }, [initialQuery]);
 
   const items = useMemo(
     () =>

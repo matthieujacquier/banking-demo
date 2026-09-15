@@ -75,7 +75,11 @@ export async function POST(req: NextRequest) {
       pageAttributes: pageAttributesFromBody(body),
     }),
     selector: { name: DY_SELECTORS.search },
-    options: { returnAnalyticsMetadata: true, isImplicitKeywordSearchEvent: true },
+    // DY can report the Keyword Search event itself (isImplicitKeywordSearchEvent),
+    // but that happens inside DY with nothing visible in the browser, and it
+    // only covers searches DY actually serves. The callers report the event
+    // explicitly instead — once per query, fallback searches included.
+    options: { returnAnalyticsMetadata: true, isImplicitKeywordSearchEvent: false },
   };
 
   // 1. Real DY Semantic Search.
@@ -104,20 +108,6 @@ export async function POST(req: NextRequest) {
 
   // 2. Local fallback — same shape, flagged so the UI and Inspector can tell.
   const data = localSearch(query);
-
-  // DY only reports the keyword-search event implicitly on a successful search,
-  // so report it ourselves to keep affinity data flowing. Best effort.
-  if (text.trim()) {
-    void callDY(
-      DY_ENDPOINTS.event,
-      {
-        user,
-        session,
-        events: [{ name: "Keyword Search", properties: { dyType: "keyword-search-v1", keywords: text.trim() } }],
-      },
-      { signal: AbortSignal.timeout(3000) },
-    ).catch(() => undefined);
-  }
 
   return NextResponse.json({
     _source: "local",

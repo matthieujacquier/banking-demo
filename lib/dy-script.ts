@@ -13,6 +13,16 @@ function getDyApi(): DyApi | undefined {
   return typeof dy?.API === "function" ? (dy.API as DyApi) : undefined;
 }
 
+// Keyword Search (keyword-search-v1) — DY's documented client-side
+// implementation. Returns false when DY's script isn't on the page (blocked,
+// or not loaded yet) so the caller can report the event server-side instead.
+export function fireKeywordSearchEvent(keywords: string): boolean {
+  const api = getDyApi();
+  if (!api) return false;
+  api("event", { name: "Keyword Search", properties: { dyType: "keyword-search-v1", keywords } });
+  return true;
+}
+
 export async function fireLoginEvent(email: string): Promise<void> {
   const cuid = await sha256Hex(email);
   getDyApi()?.("event", {
