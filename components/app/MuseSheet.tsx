@@ -98,7 +98,7 @@ export default function MuseSheet() {
         {
           role: "assistant",
           unavailable: true,
-          text: "Muse is warming up — the Shopping Muse experience isn't live on this site yet. The request and DY's answer are in the DY Activity panel.",
+          text: "Nexa Agent is warming up — it isn't live on this site yet. The request and DY's answer are in the DY Activity panel.",
         },
       ]);
       return;
@@ -134,7 +134,7 @@ export default function MuseSheet() {
           ✕
         </button>
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm leading-tight">Shopping Muse</p>
+          <p className="font-bold text-sm leading-tight">Nexa Agent</p>
           <p className="text-[11px] text-white/55">Powered by Dynamic Yield</p>
         </div>
         <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
@@ -235,7 +235,7 @@ export default function MuseSheet() {
 
         {sending && (
           <div className="bg-white rounded-2xl rounded-tl-md border border-[#D8E0ED] px-4 py-3 text-sm text-[#6B7280] w-fit">
-            <span className="dy-pulse">Muse is thinking…</span>
+            <span className="dy-pulse">Nexa Agent is thinking…</span>
           </div>
         )}
       </div>
@@ -259,8 +259,8 @@ export default function MuseSheet() {
               }
             }}
             rows={2}
-            placeholder="Ask Muse…"
-            aria-label="Message Shopping Muse"
+            placeholder="Ask Nexa Agent…"
+            aria-label="Message Nexa Agent"
             className="flex-1 resize-none rounded-2xl border border-[#D8E0ED] px-3.5 py-2.5 text-sm text-[#1F2937] focus:outline-none focus:border-[#2563FF] focus:shadow-[0_0_0_4px_rgba(159,185,255,0.35)] transition-all"
           />
           <button

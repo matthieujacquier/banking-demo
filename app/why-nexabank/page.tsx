@@ -166,7 +166,7 @@ export default function WhyNexaBankPage() {
             Still comparing banks?
           </h2>
           <p className="text-white/70 mb-8">
-            Ask Muse how NexaBank compares for your situation, or put our products side by side with the numbers in front
+            Ask Nexa Agent how NexaBank compares for your situation, or put our products side by side with the numbers in front
             of you.
           </p>
           <div className="flex flex-wrap justify-center gap-3">

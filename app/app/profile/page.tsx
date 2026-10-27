@@ -136,7 +136,7 @@ export default function ProfilePage() {
         <div>
           <p className="text-[11px] text-[#6B7280] uppercase tracking-widest font-bold">Financial profile</p>
           <p className="text-[11px] text-[#6B7280] mt-1 leading-relaxed">
-            Drives recommendations, search and Muse. Sent to DY as affinities and page attributes.
+            Drives recommendations, search and Nexa Agent. Sent to DY as affinities and page attributes.
           </p>
         </div>
 

@@ -154,7 +154,7 @@ export default function HomePage() {
       >
         <span className="w-10 h-10 rounded-full bg-[#F59E0B]/20 text-[#F59E0B] flex items-center justify-center text-lg">✦</span>
         <span className="flex-1 min-w-0">
-          <span className="block text-sm font-bold">Ask Muse</span>
+          <span className="block text-sm font-bold">Ask Nexa Agent</span>
           <span className="block text-xs text-white/55">“What should I do with the €8,200 in savings?”</span>
         </span>
         <span className="text-white/60">→</span>

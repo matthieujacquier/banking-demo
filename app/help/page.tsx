@@ -131,7 +131,7 @@ export default function HelpPage() {
                 <p className="font-bold text-xl mb-1" style={{ letterSpacing: "-0.01em" }}>
                   Didn&apos;t find it?
                 </p>
-                <p className="text-white/65 text-sm">Ask Muse in your own words, or send us a message.</p>
+                <p className="text-white/65 text-sm">Ask Nexa Agent in your own words, or send us a message.</p>
               </div>
               <div className="flex flex-wrap gap-3">
                 <AskMuseButton

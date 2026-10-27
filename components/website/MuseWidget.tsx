@@ -135,7 +135,7 @@ export default function MuseWidget() {
         {
           role: "assistant",
           unavailable: true,
-          text: "Muse is warming up — the Shopping Muse experience isn't live on this site yet. In the meantime, Search understands questions like this too.",
+          text: "Nexa Agent is warming up — it isn't live on this site yet. In the meantime, Search understands questions like this too.",
         },
       ]);
       return;
@@ -172,16 +172,16 @@ export default function MuseWidget() {
         }}
         className="dy-chat-cta fixed bottom-5 left-5 z-[60] flex items-center gap-2 rounded-full bg-[#0B0D12] text-white pl-4 pr-5 py-3 text-sm font-bold shadow-[0_16px_34px_rgba(11,13,18,0.35)] border border-white/10 hover:bg-[#1A1F2C] transition-colors"
         aria-expanded={open}
-        aria-label="Open Shopping Muse"
+        aria-label="Open Nexa Agent"
       >
         <Sparkle />
-        Ask Muse
+        Ask Nexa Agent
       </button>
 
       {open && MUSE_MODE === "api" && (
         <div
           role="dialog"
-          aria-label="Shopping Muse"
+          aria-label="Nexa Agent"
           className="fixed bottom-20 left-5 z-[60] w-[380px] max-w-[calc(100vw-2.5rem)] h-[600px] max-h-[calc(100vh-7rem)] flex flex-col rounded-3xl bg-white border border-[#D8E0ED] shadow-[0_24px_60px_rgba(11,13,18,0.28)] overflow-hidden"
         >
           {/* Header */}
@@ -190,7 +190,7 @@ export default function MuseWidget() {
               <Sparkle />
             </span>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm leading-tight">Shopping Muse</p>
+              <p className="font-bold text-sm leading-tight">Nexa Agent</p>
               <p className="text-[11px] text-white/55">Your NexaBank assistant · powered by Dynamic Yield</p>
             </div>
             <button
@@ -320,7 +320,7 @@ export default function MuseWidget() {
 
             {sending && (
               <div className="bg-white rounded-2xl rounded-tl-md border border-[#D8E0ED] px-4 py-3 text-sm text-[#6B7280] w-fit">
-                <span className="dy-pulse">Muse is thinking…</span>
+                <span className="dy-pulse">Nexa Agent is thinking…</span>
               </div>
             )}
           </div>
@@ -345,7 +345,7 @@ export default function MuseWidget() {
                 }}
                 rows={2}
                 placeholder="Ask about accounts, cards, savings, investing…"
-                aria-label="Message Shopping Muse"
+                aria-label="Message Nexa Agent"
                 className="flex-1 resize-none rounded-2xl border border-[#D8E0ED] px-3.5 py-2.5 text-sm text-[#1F2937] focus:outline-none focus:border-[#2563FF] focus:shadow-[0_0_0_4px_rgba(159,185,255,0.35)] transition-all"
               />
               <button

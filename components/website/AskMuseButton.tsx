@@ -14,7 +14,7 @@ export default function AskMuseButton({ prompt, className }: { prompt: string; c
       }
     >
       <span className="text-[#F59E0B] mr-1.5">✦</span>
-      Ask Muse about this
+      Ask Nexa Agent about this
     </button>
   );
 }

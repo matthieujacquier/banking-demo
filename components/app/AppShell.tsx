@@ -176,7 +176,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               style={{ boxShadow: "0 10px 24px rgba(11,13,18,0.28)" }}
             >
               <span className="text-[#F59E0B]">✦</span>
-              Ask Muse
+              Ask Nexa Agent
             </button>
           )}
 

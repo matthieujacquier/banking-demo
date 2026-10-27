@@ -121,7 +121,7 @@ export default function RatesPage() {
           </h1>
           <p className="text-[#6B7280] max-w-xl text-lg mb-10">
             Every rate, fee and limit for every product, on one page. No footnotes, no &ldquo;from&rdquo; that means
-            something else — the same numbers power our search and Shopping Muse.
+            something else — the same numbers power our search and Nexa Agent.
           </p>
           <div className="flex flex-wrap gap-10">
             {[
