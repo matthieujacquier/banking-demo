@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import DYContext from "@/components/DYContext";
 import { CATEGORY_ACCENT, getProduct } from "@/lib/products";
 import { fireSignupEvent } from "@/lib/dy-script";
+import { dyTrack } from "@/lib/dy-public";
 
 const STEPS = ["Your details", "Identity check", "Confirm"];
 
@@ -40,6 +41,11 @@ function SignupFlow() {
   const params = useSearchParams();
   const product = getProduct(params.get("product") ?? "");
   const accent = product ? CATEGORY_ACCENT[product.category] : "#2563FF";
+
+  // Opening the sign-up flow for a card counts as starting an application.
+  useEffect(() => {
+    if (product?.category === "Cards") dyTrack("Website Application Started", { sku: product.sku });
+  }, [product]);
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
