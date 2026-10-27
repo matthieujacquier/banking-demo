@@ -52,10 +52,6 @@ export function toggleCompare(sku: string): string[] {
   return next;
 }
 
-export function clearCompare() {
-  write([]);
-}
-
 const EMPTY: string[] = [];
 
 export function useCompare(): string[] {
