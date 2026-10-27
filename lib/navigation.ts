@@ -20,7 +20,6 @@ export const TOP_LINKS: NavItem[] = [
   { label: "Plans", href: "/#plans" },
   { label: "Rates", href: "/rates" },
   { label: "Help", href: "/help" },
-  { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 

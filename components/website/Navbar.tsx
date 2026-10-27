@@ -84,7 +84,7 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className={`hover:text-white transition-colors ${l.href === "/about" || l.href === "/contact" ? "hidden lg:inline" : ""}`}
+              className={`hover:text-white transition-colors ${l.href === "/contact" ? "hidden lg:inline" : ""}`}
             >
               {l.label}
             </Link>
