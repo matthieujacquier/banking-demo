@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import DYContext from "@/components/DYContext";
 import { CATEGORY_ACCENT, getProduct } from "@/lib/products";
-import { dyEvent, dyTrack } from "@/lib/dy-public";
+import { dyTrack } from "@/lib/dy-public";
 
 const STEPS = ["Your details", "Identity check", "Confirm"];
 
@@ -72,11 +72,10 @@ function SignupFlow() {
   const phoneValid = E164.test(phone);
 
   async function finish() {
-    // Signup (signup-v1) identifies the customer by phone. Script-based events
-    // can't use the phoneNumber cuid type without TAM enablement, so it goes
-    // through the server-side Events API; Identify then fires inside AppShell
-    // once /app/home mounts.
-    await dyEvent("Signup", {
+    // Signup (signup-v1) identifies the customer by phone (phoneNumber cuid
+    // type, enabled for script-based events on this section) through DY's
+    // script; Identify then fires inside AppShell once /app/home mounts.
+    await dyTrack("Signup", {
       dyType: "signup-v1",
       cuid: phone,
       cuidType: "phoneNumber",
