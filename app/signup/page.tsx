@@ -81,6 +81,8 @@ function SignupFlow() {
       cuidType: "phoneNumber",
       ...(product ? { product: product.sku } : {}),
     });
+    // Pairs with "Website Application Started" above.
+    if (product?.category === "Cards") await dyTrack("Website Application Completed", { sku: product.sku });
     sessionStorage.setItem(
       "nexabank_user",
       JSON.stringify({ name: form.name, email: form.email }),
