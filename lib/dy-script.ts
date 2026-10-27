@@ -1,6 +1,5 @@
 // Client-side DY events fired through the DY script (window.DY.API), used on
-// public-site pages that load the DY script via <DYContext> — the login page
-// and the sign-up / KYC flow. These do not appear in the app's server-side
+// public-site pages that load the DY script via <DYContext> — the login page. These do not appear in the app's server-side
 // Inspector panel.
 
 import { sha256Hex } from "./dy-user";
@@ -29,15 +28,5 @@ export async function fireLoginEvent(email: string): Promise<void> {
   getDyApi()?.("event", {
     name: "Login",
     properties: { dyType: "login-v1", cuid, cuidType: "he" },
-  });
-}
-
-// Sign-up completed: identifies the new customer (hashed email) and lets DY
-// attribute the acquisition to whatever campaign brought them here.
-export async function fireSignupEvent(email: string, productSku?: string): Promise<void> {
-  const cuid = await sha256Hex(email);
-  getDyApi()?.("event", {
-    name: "Signup",
-    properties: { dyType: "signup-v1", cuid, cuidType: "he", ...(productSku ? { product: productSku } : {}) },
   });
 }

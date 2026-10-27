@@ -13,10 +13,36 @@ function readCookie(name: string): string | undefined {
   return match ? decodeURIComponent(match.slice(name.length + 1)) : undefined;
 }
 
+// On *.vercel.app the browser rejects DY's cookies (public suffix): DY keeps
+// _dyid in localStorage too, but _dyjsession only as a cookie — so fall back to
+// a per-tab session id of our own. DY rejects events without both (422).
+function readStored(storage: "localStorage" | "sessionStorage", key: string): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    return window[storage].getItem(key)?.replace(/^(-?[0-9a-zA-Z]+).*/, "$1") || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function fallbackSession(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  let s = readStored("sessionStorage", "nexabank_dy_session");
+  if (!s) {
+    s = Math.random().toString(36).slice(2, 14);
+    try {
+      sessionStorage.setItem("nexabank_dy_session", s);
+    } catch {
+      /* ignore */
+    }
+  }
+  return s;
+}
+
 export function dyIdentity() {
-  const dyid = readCookie("_dyid");
+  const dyid = readCookie("_dyid") ?? readStored("localStorage", "_dyid");
   const dyidServer = readCookie("_dyid_server");
-  const session = readCookie("_dyjsession");
+  const session = readCookie("_dyjsession") ?? fallbackSession();
   return {
     user: {
       active_consent_accepted: true,

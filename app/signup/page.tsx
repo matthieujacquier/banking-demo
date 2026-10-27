@@ -5,10 +5,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import DYContext from "@/components/DYContext";
 import { CATEGORY_ACCENT, getProduct } from "@/lib/products";
-import { fireSignupEvent } from "@/lib/dy-script";
-import { dyTrack } from "@/lib/dy-public";
+import { dyEvent, dyTrack } from "@/lib/dy-public";
 
 const STEPS = ["Your details", "Identity check", "Confirm"];
+
+// DY identifies by phone in E.164: "+" + country code + number, digits only.
+const E164 = /^\+[1-9]\d{7,14}$/;
+
+function toE164(raw: string): string {
+  let v = raw.replace(/[^\d+]/g, "");
+  if (v.startsWith("00")) v = "+" + v.slice(2);
+  if (!v.startsWith("+")) v = "+" + v;
+  return v;
+}
 
 function Field({
   label,
@@ -51,6 +60,7 @@ function SignupFlow() {
   const [form, setForm] = useState({
     name: "Matthieu Jacquier",
     email: "matthieu.jacquier@mastercard.com",
+    phone: "+32 470 12 34 56",
     dob: "1992-04-18",
     address: "Rue de la Loi 42, 1000 Brussels",
     idType: "Passport",
@@ -58,12 +68,20 @@ function SignupFlow() {
   });
   const set = (key: keyof typeof form) => (v: string) =>
     setForm((f) => ({ ...f, [key]: v }));
+  const phone = toE164(form.phone);
+  const phoneValid = E164.test(phone);
 
   async function finish() {
-    // Signup (signup-v1, hashed email) goes out through the DY client script
-    // here; Identify then fires server-side inside AppShell once /app/home
-    // mounts — visible in the Inspector as the first event of the session.
-    await fireSignupEvent(form.email, product?.sku);
+    // Signup (signup-v1) identifies the customer by phone. Script-based events
+    // can't use the phoneNumber cuid type without TAM enablement, so it goes
+    // through the server-side Events API; Identify then fires inside AppShell
+    // once /app/home mounts.
+    await dyEvent("Signup", {
+      dyType: "signup-v1",
+      cuid: phone,
+      cuidType: "phoneNumber",
+      ...(product ? { product: product.sku } : {}),
+    });
     sessionStorage.setItem(
       "nexabank_user",
       JSON.stringify({ name: form.name, email: form.email }),
@@ -115,11 +133,20 @@ function SignupFlow() {
             </div>
             <Field label="Full name" value={form.name} onChange={set("name")} />
             <Field label="Email" value={form.email} onChange={set("email")} type="email" />
+            <div>
+              <Field label="Phone number" value={form.phone} onChange={set("phone")} type="tel" />
+              {!phoneValid && (
+                <p className="text-xs text-[#DC2626] font-semibold mt-1.5">
+                  Enter a full number including the country code, e.g. +32 470 12 34 56.
+                </p>
+              )}
+            </div>
             <Field label="Date of birth" value={form.dob} onChange={set("dob")} type="date" />
             <Field label="Address" value={form.address} onChange={set("address")} />
             <button
               onClick={() => setStep(1)}
-              className="w-full bg-[#0B0D12] text-white py-3 rounded-full font-bold text-sm hover:bg-[#1A1F2C] transition-colors mt-1"
+              disabled={!phoneValid}
+              className="w-full bg-[#0B0D12] text-white py-3 rounded-full font-bold text-sm hover:bg-[#1A1F2C] transition-colors mt-1 disabled:opacity-40 disabled:cursor-default"
             >
               Continue
             </button>
@@ -198,6 +225,7 @@ function SignupFlow() {
               {[
                 ["Name", form.name],
                 ["Email", form.email],
+                ["Phone", phone],
                 ["Date of birth", form.dob],
                 ["ID", `${form.idType} · ${form.idNumber}`],
               ].map(([label, value]) => (
