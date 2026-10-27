@@ -177,6 +177,12 @@ export function dyTrack(name: string, properties: Record<string, unknown>): Prom
   });
 }
 
+// Writes the demo CRM row for this phone number to DY's User Profile Data feed.
+// Server-side: the User Data API needs the secret key.
+export function dyCrmSync(phone: string) {
+  return post("/api/dy/crm", { phone });
+}
+
 export function dyEvent(name: string, properties: Record<string, unknown>) {
   return post("/api/dy/event", {
     ...dyIdentity(),

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import DYContext from "@/components/DYContext";
 import { CATEGORY_ACCENT, getProduct } from "@/lib/products";
-import { dyTrack } from "@/lib/dy-public";
+import { dyCrmSync, dyTrack } from "@/lib/dy-public";
 
 const STEPS = ["Your details", "Identity check", "Confirm"];
 
@@ -81,6 +81,9 @@ function SignupFlow() {
       cuidType: "phoneNumber",
       ...(product ? { product: product.sku } : {}),
     });
+    // Same phone, same identifier: the CRM row lands on the profile Signup
+    // just identified (risk-seeking Premium audience).
+    void dyCrmSync(phone);
     // Pairs with "Website Application Started" above.
     if (product?.category === "Cards") await dyTrack("Website Application Completed", { sku: product.sku });
     sessionStorage.setItem(

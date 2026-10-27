@@ -12,6 +12,10 @@ export const DY_ENDPOINTS = {
   muse: "/serve/user/agent-assistant",
 } as const;
 
+// CRM User Profile Data feed (sync via API), keyed by phone number (E.164,
+// cuid type "phoneNumber") — the same identifier the Signup event uses.
+export const DY_CRM_FEED_KEY = "bc4d2ffdb59440068fc525f6b7446429";
+
 // API selector names — these must match the selector configured in the
 // Experience OS console for each campaign.
 export const DY_SELECTORS = {
